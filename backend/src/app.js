@@ -28,7 +28,9 @@ app.use(express.json({ limit: '2mb' }));
 // confirm the deployment itself is alive even if MONGODB_URI is missing
 // or wrong -- the single most useful signal when a deploy "works" but
 // every other route 500s.
+app.get('/', (_req, res) => res.json({ status: 'ok', service: 'rentalls-api' }));
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
+app.get('/api', (_req, res) => res.json({ status: 'ok', service: 'rentalls-api' }));
 
 // Ensure a DB connection exists before handling any other /api request.
 // mongoose caches the connection (see lib/db.js), so this is cheap
