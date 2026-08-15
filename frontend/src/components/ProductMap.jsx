@@ -24,11 +24,9 @@ function FlyToHandler({ selectedLatLng }) {
 function createCustomIcon(category) {
   const colors = {
     Houses: "#00E676",
-    Tools: "#2E5BFF",
-    Equipment: "#FF9800",
-    Vehicles: "#e11d48",
-    Electronics: "#a855f7",
-    Furniture: "#facc15",
+    Tools & Equipment: "#2E5BFF",
+      Vehicles: "#e11d48",
+    <AirBnB></AirBnB>: "#a855f7",
     Other: "#71717a",
   };
   const color = colors[category] || colors.Other;

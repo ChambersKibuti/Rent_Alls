@@ -16,7 +16,11 @@ export default function Showroom() {
   const [creating, setCreating] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
 
-  const CATEGORIES = ["All", "Tools", "Equipment", "Vehicles", "Electronics", "Furniture", "Houses", "Transport Services", "Hairdressing", "Other"];
+  const CATEGORIES = ["All", "Houses",
+"Tools & Equipment",
+"Vehicles",
+"Air BnB",
+"Other"];
 
   const filteredRooms = activeCategory === "All" ? rooms : rooms.filter(r => r.category === activeCategory);
 

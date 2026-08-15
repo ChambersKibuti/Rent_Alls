@@ -1,6 +1,6 @@
 # RentAlls
 
-An on-demand asset rental marketplace, rebuilt from the original base44
+An Your Instant Rental Connection, rebuilt from the original base44
 export into two independent, separately-deployable projects:
 
 - **`frontend/`** — Vite + React app (talks to the backend over HTTP)

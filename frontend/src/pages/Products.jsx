@@ -5,7 +5,11 @@ import ProductCard from "@/components/ProductCard";
 import ProductMap from "@/components/ProductMap";
 import { Search, Map as MapIcon, LayoutGrid, MapPin } from "lucide-react";
 
-const categories = ["All", "Tools", "Equipment", "Vehicles", "Electronics", "Furniture", "Houses", "Transport Services", "Hairdressing", "Other"];
+const categories = ["All", "Houses",
+"Tools & Equipment",
+"Vehicles",
+"Air BnB",
+"Other"];
 const statuses = ["All", "Available", "Leased", "Maintenance"];
 
 export default function Products() {

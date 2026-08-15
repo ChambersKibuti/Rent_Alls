@@ -4,7 +4,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Plus, X, Upload, Loader2, Trash2, Edit2, CheckCircle2, Image as ImageIcon, MapPin, Package } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
-const categories = ["Tools", "Equipment", "Vehicles", "Electronics", "Furniture", "Houses", "Transport Services", "Hairdressing", "Other"];
+const categories = ["Houses",
+"Tools & Equipment",
+"Vehicles",
+"Air BnB",
+"Other"];
 const emptyProduct = { title: "", description: "", price_per_day: "", category: "Tools", status: "Available", images: [], specifications: "", deposit_amount: "", location_name: "", quantity_available: "1" };
 
 export default function ProductsTab({ products, onReload }) {

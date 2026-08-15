@@ -15,7 +15,11 @@ import { PLAN_FEES, REBATE_MULTIPLIER, isSubscriptionExpired, computeTotalSales,
 import RatingStars from "@/components/RatingStars";
 import RatingModal from "@/components/RatingModal";
 
-const categories = ["Tools", "Equipment", "Vehicles", "Electronics", "Furniture", "Houses", "Transport Services", "Hairdressing", "Other"];
+const categories = ["Houses",
+"Tools & Equipment",
+"Vehicles",
+"Air BnB",
+"Other"];
 const emptyProduct = {
   title: "", description: "", price_per_day: "", category: "Tools", status: "Available",
   images: [], specifications: "", deposit_amount: "", location_name: "",

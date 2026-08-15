@@ -94,7 +94,7 @@ export default function BuyerRegister() {
       await base44.integrations.Core.SendEmail({
         to: form.email,
         subject: "Welcome to RentAlls!",
-        body: `Hi ${form.full_name},\n\nWelcome to RentAlls! Your buyer account is now active.\n\nBrowse our catalogue of tools, equipment, vehicles, and houses available for rent. Book in minutes with secure payments and real-time support.\n\nHappy renting!\nThe RentAlls Team`,
+        body: `Hi ${form.full_name},\n\nWelcome to RentAlls! Your buyer account is now active.\n\nBrowse our catalogue of Houses, tools & equipment, vehicles, and other assets available for rent. Book in minutes with secure payments and real-time support.\n\nHappy renting!\nThe RentAlls Team`,
       });
     } catch (e) {
       /* email failure is non-critical */

@@ -14,7 +14,7 @@ export default function Footer() {
               <span className="text-zinc-900 font-bold text-lg">RentAlls</span>
             </div>
             <p className="text-zinc-500 text-sm leading-relaxed max-w-md">
-              Your on-demand asset rental marketplace. We provide top-quality tools, equipment, and vehicles for hire.
+              Your instant rentals connection. We provide top-quality Houses, tools & equipment, vehicles and more for hire.
               Fast booking, secure payments, and real-time support through WhatsApp, call, SMS, or USSD.
             </p>
           </div>

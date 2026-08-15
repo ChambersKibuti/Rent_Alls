@@ -51,15 +51,15 @@ export default function Home() {
               transition={{ duration: 0.8 }}>
               
               <p className="text-[#2E5BFF] text-xs uppercase tracking-[0.3em] font-semibold mb-4">
-                On-Demand Asset Rentals
+                Your Instant Rentals Connection
               </p>
               <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-zinc-900 leading-[1.1] mb-6">
-                Rent What<br />
-                You Need.<br />
-                <span className="text-[#2E5BFF]">Right Now.</span>
+                Rentals<br />
+                Made.<br />
+                <span className="text-[#2E5BFF]">Simple.</span>
               </h1>
               <p className="text-zinc-600 text-base sm:text-lg max-w-md mb-8 leading-relaxed">
-                Professional tools, heavy equipment, and vehicles available for hire. Book instantly via WhatsApp, phone call, SMS, or USSD.
+                Houses, Professional tools & heavy equipment, Vehicles and Other assets available for hire. Book instantly via WhatsApp, phone call, SMS, or USSD.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Link
@@ -201,7 +201,7 @@ export default function Home() {
               </div>
               <p className="text-[#00E676] text-xs uppercase tracking-[0.3em] font-semibold mb-2">For Sellers</p>
               <h2 className="text-3xl sm:text-4xl font-black text-zinc-900 mb-4">List Your Assets.<br />Earn Recurring Revenue.</h2>
-              <p className="text-zinc-600 text-sm leading-relaxed mb-6 max-w-md">Subscribe as a seller, list your tools, equipment, vehicles, or houses with photos and location. Manage your clients, track payments, and receive serious enquiries
+              <p className="text-zinc-600 text-sm leading-relaxed mb-6 max-w-md">Subscribe as a seller, list your Houses, Professional tools & heavy equipment, Vehicles and Other assets with photos and location. Manage your clients, track payments, and receive serious enquiries
 
               </p>
               <div className="flex flex-wrap gap-3">

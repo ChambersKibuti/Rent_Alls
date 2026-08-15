@@ -1,12 +1,12 @@
 // Dedicated storage for shared platform constants — single source of truth
 
 export const CONTACT = {
-  WHATSAPP_NUMBER: "254725217874",
+  WHATSAPP_NUMBER: "+254725217874",
   CALL_NUMBER: "+254725217874",
   SMS_NUMBER: "254725217874",
-  USSD_CODE: "*123*456#",
+  USSD_CODE: "coming soon",
   EMAIL: "info@rentalls.com",
-  LOCATION: "Westlands, Nairobi",
+  LOCATION: "Kasarani, Nairobi",
 };
 
 export const MAP_DEFAULTS = {
