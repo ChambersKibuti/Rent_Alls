@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -24,9 +25,9 @@ function FlyToHandler({ selectedLatLng }) {
 function createCustomIcon(category) {
   const colors = {
     Houses: "#00E676",
-    Tools & Equipment: "#2E5BFF",
-      Vehicles: "#e11d48",
-    <AirBnB></AirBnB>: "#a855f7",
+    "Tools & Equipment": "#2E5BFF",
+    Vehicles: "#e11d48",
+    AirBnB: "#a855f7",
     Other: "#71717a",
   };
   const color = colors[category] || colors.Other;
