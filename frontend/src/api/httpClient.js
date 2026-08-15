@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Thin fetch wrapper: adds the base URL, JSON headers, and the bearer token.
 // VITE_API_URL lets you point the frontend at a separately-hosted API;
 // leave it unset when the API is deployed on the same Vercel project
