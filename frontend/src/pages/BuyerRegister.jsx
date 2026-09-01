@@ -11,6 +11,14 @@ import GoogleIcon from "@/components/GoogleIcon";
 import OtpStep from "@/components/OtpStep";
 import { toast } from "@/components/ui/use-toast";
 import { promptGoogleSignIn, isGoogleSignInConfigured } from "@/lib/googleAuth";
+import {
+  validateEmailFrontend,
+  validatePasswordFrontend,
+  validatePasswordsMatch,
+  validateFullNameFrontend,
+  validatePhoneFrontend,
+  validateNationalIdFrontend,
+} from "@/lib/validation";
 
 export default function BuyerRegister() {
   const navigate = useNavigate();
@@ -46,14 +54,33 @@ export default function BuyerRegister() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    const fullNameValidation = validateFullNameFrontend(form.full_name);
+    if (!fullNameValidation.valid) {
+      setError(fullNameValidation.error);
+      return;
+    }
+
+    const phoneValidation = validatePhoneFrontend(form.phone);
+    if (!phoneValidation.valid) {
+      setError(phoneValidation.error);
+      return;
+    }
+
+    const nationalIdValidation = validateNationalIdFrontend(form.national_id);
+    if (!nationalIdValidation.valid) {
+      setError(nationalIdValidation.error);
+      return;
+    }
+
     if (existingUser) {
       // Existing user (e.g. seller) becoming a buyer — just update their profile
       setLoading(true);
       try {
         await base44.auth.updateMe({
-          full_name: form.full_name,
-          phone: form.phone,
-          national_id: form.national_id,
+          full_name: form.full_name.trim(),
+          phone: form.phone.trim(),
+          national_id: form.national_id.trim(),
           user_type: "buyer",
         });
         toast({ title: "Buyer profile activated!", description: "You can now browse and rent assets." });
@@ -65,14 +92,28 @@ export default function BuyerRegister() {
       }
       return;
     }
-    if (form.password !== form.confirmPassword) {
-      setError("Passwords do not match");
+    
+    // Validate email
+    const emailValidation = validateEmailFrontend(form.email);
+    if (!emailValidation.valid) {
+      setError(emailValidation.error);
       return;
     }
-    if (form.password.length < 6) {
-      setError("Password must be at least 6 characters");
+    
+    // Validate password
+    const passwordValidation = validatePasswordFrontend(form.password);
+    if (!passwordValidation.valid) {
+      setError(passwordValidation.error);
       return;
     }
+    
+    // Validate passwords match
+    const matchValidation = validatePasswordsMatch(form.password, form.confirmPassword);
+    if (!matchValidation.valid) {
+      setError(matchValidation.error);
+      return;
+    }
+    
     setLoading(true);
     try {
       await base44.auth.register({ email: form.email, password: form.password });
@@ -85,10 +126,28 @@ export default function BuyerRegister() {
   };
 
   const handleVerified = async () => {
+    const fullNameValidation = validateFullNameFrontend(form.full_name);
+    if (!fullNameValidation.valid) {
+      setError(fullNameValidation.error);
+      return;
+    }
+
+    const phoneValidation = validatePhoneFrontend(form.phone);
+    if (!phoneValidation.valid) {
+      setError(phoneValidation.error);
+      return;
+    }
+
+    const nationalIdValidation = validateNationalIdFrontend(form.national_id);
+    if (!nationalIdValidation.valid) {
+      setError(nationalIdValidation.error);
+      return;
+    }
+
     await base44.auth.updateMe({
-      full_name: form.full_name,
-      phone: form.phone,
-      national_id: form.national_id,
+      full_name: form.full_name.trim(),
+      phone: form.phone.trim(),
+      national_id: form.national_id.trim(),
       user_type: "buyer",
     });
     try {

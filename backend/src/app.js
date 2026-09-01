@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import { connectDB } from './lib/db.js';
 import authRoutes from './routes/auth.js';
 import entityRoutes from './routes/entities.js';
@@ -7,6 +8,9 @@ import uploadRoutes from './routes/upload.js';
 import emailRoutes from './routes/email.js';
 
 const app = express();
+
+// Security headers - must be early in middleware stack
+app.use(helmet());
 
 // In the split-repo setup the frontend and backend are usually on
 // different domains, so CORS needs to be explicit. Set CORS_ORIGIN to a

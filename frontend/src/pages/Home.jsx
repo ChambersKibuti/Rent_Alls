@@ -56,7 +56,7 @@ export default function Home() {
               </p>
               <h1 className="text-4xl sm:text-5xl lg:text-7xl font-black text-zinc-900 leading-[1.1] mb-6">
                 Rentals<br />
-                Made.<br />
+                Made<br />
                 <span className="text-[#2E5BFF]">Simple.</span>
               </h1>
               <p className="text-zinc-600 text-base sm:text-lg max-w-md mb-8 leading-relaxed">

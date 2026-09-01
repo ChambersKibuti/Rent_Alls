@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import crypto from 'crypto';
+import rateLimit from 'express-rate-limit';
 import { OAuth2Client } from 'google-auth-library';
 import User from '../models/User.js';
 import {
@@ -10,8 +11,32 @@ import {
   requireAuth,
 } from '../lib/auth.js';
 import { sendEmail } from '../lib/mailer.js';
+import {
+  validateEmail,
+  validatePassword,
+  validateFullName,
+  validatePhone,
+  validateNationalId,
+} from '../lib/validation.js';
 
 const router = Router();
+
+// Rate limiters for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // 10 requests per windowMs
+  message: 'Too many authentication attempts, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+const otpLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: 3, // 3 OTP attempts per 5 minutes
+  message: 'Too many OTP verification attempts, please try again later',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 const googleClient = process.env.GOOGLE_CLIENT_ID ? new OAuth2Client(process.env.GOOGLE_CLIENT_ID) : null;
 
@@ -19,13 +44,24 @@ const OTP_TTL_MS = 15 * 60 * 1000; // 15 minutes
 const RESET_TTL_MS = 60 * 60 * 1000; // 1 hour
 
 // POST /api/auth/register  { email, password }
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Email and password are required' });
+    
+    // Validate email
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      return res.status(400).json({ error: emailValidation.error });
     }
-    const existing = await User.findOne({ email: email.toLowerCase() });
+    
+    // Validate password
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      return res.status(400).json({ error: passwordValidation.error });
+    }
+    
+    const validatedEmail = emailValidation.value;
+    const existing = await User.findOne({ email: validatedEmail });
     if (existing && existing.is_verified) {
       return res.status(409).json({ error: 'An account with this email already exists' });
     }
@@ -39,7 +75,7 @@ router.post('/register', async (req, res) => {
       Object.assign(user, { password_hash, otp_code, otp_expires });
     } else {
       user = new User({
-        email: email.toLowerCase(),
+        email: validatedEmail,
         password_hash,
         otp_code,
         otp_expires,
@@ -62,10 +98,14 @@ router.post('/register', async (req, res) => {
 });
 
 // POST /api/auth/resend-otp { email }
-router.post('/resend-otp', async (req, res) => {
+router.post('/resend-otp', authLimiter, async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email: (email || '').toLowerCase() });
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      return res.status(400).json({ error: emailValidation.error });
+    }
+    const user = await User.findOne({ email: emailValidation.value });
     if (!user) return res.status(404).json({ error: 'No account found for that email' });
 
     user.otp_code = generateOtp();
@@ -86,10 +126,14 @@ router.post('/resend-otp', async (req, res) => {
 });
 
 // POST /api/auth/verify-otp { email, otpCode }
-router.post('/verify-otp', async (req, res) => {
+router.post('/verify-otp', otpLimiter, async (req, res) => {
   try {
     const { email, otpCode } = req.body;
-    const user = await User.findOne({ email: (email || '').toLowerCase() });
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      return res.status(400).json({ error: emailValidation.error });
+    }
+    const user = await User.findOne({ email: emailValidation.value });
     if (!user || !user.otp_code || user.otp_code !== otpCode) {
       return res.status(400).json({ error: 'Invalid verification code' });
     }
@@ -111,10 +155,14 @@ router.post('/verify-otp', async (req, res) => {
 });
 
 // POST /api/auth/login { email, password }
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email: (email || '').toLowerCase() });
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      return res.status(400).json({ error: emailValidation.error });
+    }
+    const user = await User.findOne({ email: emailValidation.value });
     if (!user || !(await comparePassword(password, user.password_hash))) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
@@ -136,7 +184,7 @@ router.post('/login', async (req, res) => {
 // it server-side (never trust a token we haven't checked), then find or
 // create a matching User. Google already verified the email, so accounts
 // created this way are marked verified immediately -- no OTP step needed.
-router.post('/google', async (req, res) => {
+router.post('/google', authLimiter, async (req, res) => {
   try {
     if (!googleClient) {
       return res.status(501).json({
@@ -199,10 +247,35 @@ router.get('/me', requireAuth, async (req, res) => {
 router.put('/me', requireAuth, async (req, res) => {
   const user = await User.findById(req.userId);
   if (!user) return res.status(404).json({ error: 'User not found' });
+
   const disallowed = ['password_hash', 'email', 'role', '_id', 'id'];
+  const allowed = ['full_name', 'phone', 'national_id', 'user_type', 'seller_id', 'buyer_average_rating', 'buyer_total_ratings', 'created_by_id', 'created_by_email'];
+
   for (const [key, value] of Object.entries(req.body || {})) {
-    if (!disallowed.includes(key)) user[key] = value;
+    if (disallowed.includes(key) || !allowed.includes(key)) continue;
+
+    if (key === 'full_name') {
+      const validation = validateFullName(value);
+      if (!validation.valid) return res.status(400).json({ error: validation.error });
+    }
+
+    if (key === 'phone') {
+      const validation = validatePhone(value);
+      if (!validation.valid) return res.status(400).json({ error: validation.error });
+    }
+
+    if (key === 'national_id') {
+      const validation = validateNationalId(value);
+      if (!validation.valid) return res.status(400).json({ error: validation.error });
+    }
+
+    if (key === 'user_type' && !['buyer', 'seller'].includes(value)) {
+      return res.status(400).json({ error: 'Invalid user type' });
+    }
+
+    user[key] = value;
   }
+
   await user.save();
   const { password_hash, otp_code, reset_token, __v, _id, ...rest } = user.toObject();
   res.json({ id: String(_id), ...rest });
@@ -212,7 +285,12 @@ router.put('/me', requireAuth, async (req, res) => {
 router.post('/reset-password-request', async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await User.findOne({ email: (email || '').toLowerCase() });
+    const emailValidation = validateEmail(email);
+    if (!emailValidation.valid) {
+      return res.status(400).json({ error: emailValidation.error });
+    }
+
+    const user = await User.findOne({ email: emailValidation.value });
     // Always respond success (don't leak which emails exist)
     if (user) {
       const reset_token = crypto.randomBytes(24).toString('hex');
@@ -237,6 +315,11 @@ router.post('/reset-password-request', async (req, res) => {
 router.post('/reset-password', async (req, res) => {
   try {
     const { token, password } = req.body;
+    const passwordValidation = validatePassword(password);
+    if (!passwordValidation.valid) {
+      return res.status(400).json({ error: passwordValidation.error });
+    }
+
     const user = await User.findOne({ reset_token: token });
     if (!user || !user.reset_token_expires || user.reset_token_expires < new Date()) {
       return res.status(400).json({ error: 'Reset link is invalid or has expired' });
