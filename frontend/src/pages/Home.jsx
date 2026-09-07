@@ -138,7 +138,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
-            { icon: Clock, title: "Instant Booking", desc: "Reserve equipment in seconds through any channel — WhatsApp, call, SMS, or USSD." },
+            { icon: Clock, title: "Instant Booking", desc: "Reserve equipment in seconds through WhatsApp, call, SMS, or USSD." },
             { icon: Shield, title: "Secure Payments", desc: "Pay with card, mobile money, USSD, or bank transfer. Every transaction is tracked." },
             { icon: Wrench, title: "Quality Assets", desc: "All equipment is professionally maintained, inspected, and ready for heavy-duty use." }].
             map((f, i) =>
