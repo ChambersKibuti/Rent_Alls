@@ -55,7 +55,6 @@ export default function Showroom() {
       const room = await base44.entities.Showroom.create({
         title: form.title.trim(),
         description: form.description.trim(),
-        host_id: user.id,
         host_name: user.full_name || "User",
         product_title: form.product_title.trim() || undefined,
         category: form.category || undefined,
@@ -63,7 +62,7 @@ export default function Showroom() {
       });
       window.location.href = `/showroom/${room.id}`;
     } catch (e) {
-      toast({ title: "Failed to create showroom", variant: "destructive" });
+      toast({ title: "Failed to create showroom", description: e.message || "Please try again.", variant: "destructive" });
     }
     setCreating(false);
   };

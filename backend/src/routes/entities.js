@@ -103,7 +103,10 @@ router.get('/:entity', async (req, res) => {
 router.post('/:entity', requireAuth, async (req, res) => {
   try {
     const user = await currentUser(req);
+    if (!user) return res.status(401).json({ error: 'User account not found' });
     const { rules, Model } = req;
+    const body = { ...req.body };
+    if (req.entityName === 'Showroom') body.host_id = String(user._id);
     if (rules.adminOnly && user?.role !== 'admin') {
       return res.status(403).json({ error: 'Admin access required' });
     }
@@ -111,7 +114,7 @@ router.post('/:entity', requireAuth, async (req, res) => {
       return res.status(403).json({ error: 'Admin access required' });
     }
     const doc = await Model.create({
-      ...req.body,
+      ...body,
       created_by_id: String(user._id),
       created_by_email: user.email,
     });

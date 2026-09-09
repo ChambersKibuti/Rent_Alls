@@ -96,8 +96,8 @@ export default function SellerRegister() {
         toast({ title: "Password mismatch", description: "Passwords do not match.", variant: "destructive" });
         return;
       }
-      if (form.password.length < 6) {
-        toast({ title: "Weak password", description: "Password must be at least 6 characters.", variant: "destructive" });
+      if (form.password.length < 8 || !/[A-Z]/.test(form.password) || !/[a-z]/.test(form.password) || !/\d/.test(form.password)) {
+        toast({ title: "Weak password", description: "Use at least 8 characters with uppercase, lowercase, and a number.", variant: "destructive" });
         return;
       }
       setSubmitting(true);
@@ -118,7 +118,7 @@ export default function SellerRegister() {
         toast({ title: "Seller Account Created!", description: "Your subscription is now active." });
         setTimeout(() => navigate("/seller-dashboard"), 2000);
       } catch (e) {
-        toast({ title: "Registration failed", variant: "destructive" });
+        toast({ title: "Registration failed", description: e.message || "Could not create seller account.", variant: "destructive" });
       } finally {
         setSubmitting(false);
       }
