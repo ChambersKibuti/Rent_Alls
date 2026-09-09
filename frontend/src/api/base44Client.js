@@ -21,10 +21,12 @@ const ENTITY_NAMES = [
 ];
 
 function buildEntityApi(name) {
+  const asList = (value) => Array.isArray(value) ? value : [];
+
   return {
     async list(sort = '-created_date', limit = 200) {
       const qs = new URLSearchParams({ sort, limit: String(limit) });
-      return request(`/entities/${name}?${qs.toString()}`);
+      return asList(await request(`/entities/${name}?${qs.toString()}`));
     },
     async filter(query = {}, sort = '-created_date', limit = 200) {
       const qs = new URLSearchParams({
@@ -32,7 +34,7 @@ function buildEntityApi(name) {
         limit: String(limit),
         filter: JSON.stringify(query),
       });
-      return request(`/entities/${name}?${qs.toString()}`);
+      return asList(await request(`/entities/${name}?${qs.toString()}`));
     },
     async get(id) {
       const results = await request(`/entities/${name}?${new URLSearchParams({
