@@ -3,7 +3,7 @@
 // VITE_API_URL lets you point the frontend at a separately-hosted API;
 // leave it unset when the API is deployed on the same Vercel project
 // (requests then go to the relative "/api/..." path).
-const API_BASE = import.meta.env.VITE_API_URL || '';
+const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '').replace(/\/api$/, '');
 
 const TOKEN_KEY = 'rentalls_access_token';
 
