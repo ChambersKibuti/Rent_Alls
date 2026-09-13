@@ -52,6 +52,11 @@
 
   body {
     @apply bg-background text-foreground font-body;
+    cursor: none !important;
+  }
+
+  * {
+    cursor: none !important;
   }
 
   /* Light scrollbar */
