@@ -53,6 +53,12 @@ export async function request(path, { method = 'GET', body, headers = {}, isForm
   if (!isFormData) finalHeaders['Content-Type'] = 'application/json';
   if (token) finalHeaders['Authorization'] = `Bearer ${token}`;
 
+  const currentHost = typeof window !== 'undefined' ? window.location.hostname : '';
+  const isLocalDev = !currentHost || currentHost === 'localhost' || currentHost === '127.0.0.1';
+  if (!API_BASE && !isLocalDev) {
+    throw new ApiError(describeNetworkFailure(), 0, { cause: 'missing_api_url' });
+  }
+
   try {
     const res = await fetch(`${API_BASE}/api${path}`, {
       method,

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, X, Upload, Loader2, Trash2, Edit2, CheckCircle2, Image as ImageIcon, MapPin, Package } from "lucide-react";
+import { Plus, X, Upload, Loader2, Trash2, Edit2, CheckCircle2, Image as ImageIcon, Video, MapPin, Package } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const categories = ["Houses",
@@ -9,7 +9,7 @@ const categories = ["Houses",
 "Vehicles",
 "Air BnB",
 "Other"];
-const emptyProduct = { title: "", description: "", price_per_day: "", category: "Tools", status: "Available", images: [], specifications: "", deposit_amount: "", location_name: "", quantity_available: "1" };
+const emptyProduct = { title: "", description: "", price_per_day: "", category: "Houses", status: "Available", images: [], videos: [], specifications: "", deposit_amount: "", location_name: "", quantity_available: "1" };
 
 export default function ProductsTab({ products, onReload }) {
   const { toast } = useToast();
@@ -36,11 +36,32 @@ export default function ProductsTab({ products, onReload }) {
     setUploading(false);
   };
 
+  const handleVideoUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setUploading(true);
+    try {
+      const urls = [];
+      for (const file of files) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        urls.push(file_url);
+      }
+      setForm((f) => ({ ...f, videos: [...(f.videos || []), ...urls] }));
+    } catch (e) {
+      toast({ title: "Video upload failed", variant: "destructive" });
+    }
+    setUploading(false);
+  };
+
   const removeImage = (idx) => {
     setForm((f) => {
       const newImages = (f.images || []).filter((_, i) => i !== idx);
       return { ...f, images: newImages, image_url: newImages[0] || "" };
     });
+  };
+
+  const removeVideo = (idx) => {
+    setForm((f) => ({ ...f, videos: (f.videos || []).filter((_, i) => i !== idx) }));
   };
 
   const saveProduct = async () => {
@@ -56,6 +77,7 @@ export default function ProductsTab({ products, onReload }) {
         deposit_amount: form.deposit_amount ? Number(form.deposit_amount) : 0,
         quantity_available: Number(form.quantity_available) || 1,
         images: form.images || [],
+        videos: form.videos || [],
         image_url: form.images?.[0] || "",
       };
       if (editProduct) {
@@ -163,6 +185,24 @@ export default function ProductsTab({ products, onReload }) {
                 </div>
               </div>
               <div className="md:col-span-2">
+                <label className="text-xs text-zinc-500 uppercase tracking-widest mb-2 block">Product Videos</label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {(form.videos || []).map((video, idx) => (
+                    <div key={idx} className="relative w-32 h-20 group">
+                      <video src={video} controls className="w-full h-full object-cover rounded-lg border border-zinc-300" />
+                      <button type="button" onClick={() => removeVideo(idx)} className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <X size={12} />
+                      </button>
+                    </div>
+                  ))}
+                  <label className="w-32 h-20 border-2 border-dashed border-zinc-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-[#2E5BFF]/30 transition-colors">
+                    {uploading ? <Loader2 size={16} className="animate-spin text-zinc-400" /> : <Video size={16} className="text-zinc-400" />}
+                    <input type="file" accept="video/*" multiple onChange={handleVideoUpload} className="hidden" />
+                  </label>
+                </div>
+                <p className="text-zinc-300 text-xs">Upload product videos up to 50MB each.</p>
+              </div>
+              <div className="md:col-span-2">
                 <label className="text-xs text-zinc-500 uppercase tracking-widest mb-1 block">Description</label>
                 <textarea value={form.description} onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} rows={2}
                   className="w-full bg-zinc-100 border border-zinc-300 rounded-lg px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:border-[#2E5BFF]/30 resize-none" />
@@ -202,6 +242,7 @@ export default function ProductsTab({ products, onReload }) {
               setForm({
                 title: p.title, description: p.description || "", price_per_day: p.price_per_day, category: p.category, status: p.status,
                 images: p.images || (p.image_url ? [p.image_url] : []), specifications: p.specifications || "",
+                videos: p.videos || [],
                 deposit_amount: p.deposit_amount || "", location_name: p.location_name || "", quantity_available: String(p.quantity_available || 1),
               });
               setShowForm(true);

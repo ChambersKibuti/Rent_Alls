@@ -6,7 +6,13 @@ const router = Router();
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 8 * 1024 * 1024 }, // 8MB
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB for images and short product videos
+  fileFilter: (_req, file, callback) => {
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+      return callback(null, true);
+    }
+    callback(new Error('Only image and video files are allowed'));
+  },
 });
 
 // POST /api/upload  (multipart/form-data, field name "file")

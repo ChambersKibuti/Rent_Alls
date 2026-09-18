@@ -175,6 +175,7 @@ export default function ProductDetail() {
   }
 
   const images = product.images?.length ? product.images : product.image_url ? [product.image_url] : [];
+  const videos = product.videos || [];
   const statusColor = product.status === "Available" ? "text-[#00E676] bg-[#00E676]/10 border-[#00E676]/20" : product.status === "Leased" ? "text-red-400 bg-red-400/10 border-red-400/20" : "text-yellow-400 bg-yellow-400/10 border-yellow-400/20";
 
   return (
@@ -213,6 +214,14 @@ export default function ProductDetail() {
                     className={`w-16 h-16 rounded-lg overflow-hidden border-2 shrink-0 transition-colors ${activeImage === idx ? "border-[#2E5BFF]" : "border-zinc-200 hover:border-white/20"}`}>
                     <img src={img} alt="" className="w-full h-full object-cover" />
                   </button>
+                ))}
+              </div>
+            )}
+            {videos.length > 0 && (
+              <div className="mt-4 space-y-3">
+                <h3 className="text-xs text-zinc-500 uppercase tracking-widest">Product Videos</h3>
+                {videos.map((video, idx) => (
+                  <video key={idx} src={video} controls className="w-full rounded-xl border border-zinc-200 bg-black" />
                 ))}
               </div>
             )}

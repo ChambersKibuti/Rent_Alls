@@ -7,7 +7,7 @@ import LocationMap from "@/components/LocationMap";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Package, Users, Plus, X, Upload, Loader2, Trash2, Edit2, CheckCircle2,
-  Image as ImageIcon, MapPin, Store, UserX, UserCheck, Calendar, TrendingUp, Gift, AlertTriangle, Star, MessageSquare
+  Image as ImageIcon, Video, MapPin, Store, UserX, UserCheck, Calendar, TrendingUp, Gift, AlertTriangle, Star, MessageSquare
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import moment from "moment";
@@ -21,8 +21,8 @@ const categories = ["Houses",
 "Air BnB",
 "Other"];
 const emptyProduct = {
-  title: "", description: "", price_per_day: "", category: "Tools", status: "Available",
-  images: [], specifications: "", deposit_amount: "", location_name: "",
+  title: "", description: "", price_per_day: "", category: "Houses", status: "Available",
+  images: [], videos: [], specifications: "", deposit_amount: "", location_name: "",
   latitude: null, longitude: null, quantity_available: "1"
 };
 
@@ -113,8 +113,29 @@ export default function SellerDashboard() {
     setUploading(false);
   };
 
+  const handleVideoUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setUploading(true);
+    try {
+      const urls = [];
+      for (const file of files) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file });
+        urls.push(file_url);
+      }
+      setForm(f => ({ ...f, videos: [...(f.videos || []), ...urls] }));
+    } catch (e) {
+      toast({ title: "Video upload failed", variant: "destructive" });
+    }
+    setUploading(false);
+  };
+
   const removeImage = (idx) => {
     setForm(f => ({ ...f, images: f.images.filter((_, i) => i !== idx) }));
+  };
+
+  const removeVideo = (idx) => {
+    setForm(f => ({ ...f, videos: (f.videos || []).filter((_, i) => i !== idx) }));
   };
 
   const saveProduct = async () => {
@@ -130,6 +151,7 @@ export default function SellerDashboard() {
         deposit_amount: form.deposit_amount ? Number(form.deposit_amount) : 0,
         quantity_available: Number(form.quantity_available) || 1,
         images: form.images || [],
+        videos: form.videos || [],
         image_url: form.images?.[0] || "",
         seller_id: seller.id,
       };
@@ -452,6 +474,25 @@ export default function SellerDashboard() {
                       <p className="text-zinc-300 text-xs">Upload multiple images. First image is the cover.</p>
                     </div>
 
+                    <div className="md:col-span-2">
+                      <label className="text-xs text-zinc-500 uppercase tracking-widest mb-2 block">Product Videos</label>
+                      <div className="flex flex-wrap gap-2 mb-2">
+                        {(form.videos || []).map((video, idx) => (
+                          <div key={idx} className="relative w-32 h-20 group">
+                            <video src={video} controls className="w-full h-full object-cover rounded-lg border border-zinc-300" />
+                            <button type="button" onClick={() => removeVideo(idx)} className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                              <X size={12} />
+                            </button>
+                          </div>
+                        ))}
+                        <label className="w-32 h-20 border-2 border-dashed border-zinc-300 rounded-lg flex items-center justify-center cursor-pointer hover:border-[#2E5BFF]/30 transition-colors">
+                          {uploading ? <Loader2 size={18} className="animate-spin text-zinc-400" /> : <Video size={18} className="text-zinc-400" />}
+                          <input type="file" accept="video/*" multiple onChange={handleVideoUpload} className="hidden" />
+                        </label>
+                      </div>
+                      <p className="text-zinc-300 text-xs">Upload product videos up to 50MB each.</p>
+                    </div>
+
                     {/* Location */}
                     <div className="md:col-span-2">
                       <label className="text-xs text-zinc-500 uppercase tracking-widest mb-1 block">Location</label>
@@ -508,7 +549,7 @@ export default function SellerDashboard() {
                       setEditProduct(p);
                       setForm({
                         title: p.title, description: p.description || "", price_per_day: p.price_per_day,
-                        category: p.category, status: p.status, images: p.images || (p.image_url ? [p.image_url] : []),
+                        category: p.category, status: p.status, images: p.images || (p.image_url ? [p.image_url] : []), videos: p.videos || [],
                         specifications: p.specifications || "", deposit_amount: p.deposit_amount || "",
                         location_name: p.location_name || "", latitude: p.latitude, longitude: p.longitude,
                         quantity_available: String(p.quantity_available || 1)

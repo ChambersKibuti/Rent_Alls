@@ -12,6 +12,7 @@ const schema = new mongoose.Schema({
   status: { type: String, enum: ["Available", "Leased", "Maintenance"], default: "Available" },
   image_url: { type: String },
   images: { type: [String] },
+  videos: { type: [String] },
   specifications: { type: String },
   deposit_amount: { type: Number },
   location_name: { type: String },
