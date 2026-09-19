@@ -2,15 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, LogOut } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { base44 } from "@/api/base44Client";
+import { useAuth } from "@/lib/AuthContext";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
     const onScroll = () => setScrolled(window.scrollY > 60);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
@@ -28,7 +27,7 @@ export default function Header() {
   ];
 
   const authButton = user ? (
-    <button onClick={() => base44.auth.logout("/")} className="ml-2 px-4 py-2 text-sm text-zinc-600 hover:text-red-400 transition-colors flex items-center gap-1.5">
+    <button onClick={() => logout()} className="ml-2 px-4 py-2 text-sm text-zinc-600 hover:text-red-400 transition-colors flex items-center gap-1.5">
       <LogOut size={14} /> Logout
     </button>
   ) : (
@@ -38,7 +37,7 @@ export default function Header() {
   );
 
   const mobileAuthButton = user ? (
-    <button onClick={() => { base44.auth.logout("/"); setMenuOpen(false); }} className="px-4 py-3 text-sm text-red-400 hover:bg-zinc-100 rounded-lg text-left flex items-center gap-2">
+    <button onClick={() => { logout(); setMenuOpen(false); }} className="px-4 py-3 text-sm text-red-400 hover:bg-zinc-100 rounded-lg text-left flex items-center gap-2">
       <LogOut size={14} /> Logout
     </button>
   ) : (
