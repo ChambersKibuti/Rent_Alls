@@ -1,9 +1,12 @@
 // @ts-nocheck
 // Thin fetch wrapper: adds the base URL, JSON headers, and the bearer token.
-// VITE_API_URL lets you point the frontend at a separately-hosted API;
-// leave it unset when the API is deployed on the same Vercel project
-// (requests then go to the relative "/api/..." path).
-const API_BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '').replace(/\/api$/, '');
+// VITE_API_URL lets you point the frontend at a separately-hosted API. The
+// production fallback keeps deployments functional when Vercel env vars have
+// not been configured yet; local development still uses the Vite proxy.
+const currentHost = typeof window !== 'undefined' ? window.location.hostname : '';
+const isLocalDev = !currentHost || currentHost === 'localhost' || currentHost === '127.0.0.1';
+const configuredApiBase = import.meta.env.VITE_API_URL || (isLocalDev ? '' : 'https://rent-allsbackend.vercel.app');
+const API_BASE = configuredApiBase.replace(/\/$/, '').replace(/\/api$/, '');
 
 const TOKEN_KEY = 'rentalls_access_token';
 
@@ -53,8 +56,6 @@ export async function request(path, { method = 'GET', body, headers = {}, isForm
   if (!isFormData) finalHeaders['Content-Type'] = 'application/json';
   if (token) finalHeaders['Authorization'] = `Bearer ${token}`;
 
-  const currentHost = typeof window !== 'undefined' ? window.location.hostname : '';
-  const isLocalDev = !currentHost || currentHost === 'localhost' || currentHost === '127.0.0.1';
   if (!API_BASE && !isLocalDev) {
     throw new ApiError(describeNetworkFailure(), 0, { cause: 'missing_api_url' });
   }
