@@ -138,7 +138,7 @@ the backend automatically.
 ## What changed from the base44 export
 
 - `frontend/src/api/base44Client.js` is a lightweight shim with the same
-  interface (`base44.auth.*`, `modules.<Entity>.*`,
+  interface (`base44.auth.*`, `base44.entities.<Entity>.*`,
   `base44.integrations.Core.*`) but talks to the backend's REST API
   instead of base44's hosted backend — kept ~90 components unmodified.
 - `frontend/src/lib/AuthContext.jsx` was rewritten to drop the

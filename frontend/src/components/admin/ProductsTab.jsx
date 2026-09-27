@@ -81,10 +81,10 @@ export default function ProductsTab({ products, onReload }) {
         image_url: form.images?.[0] || "",
       };
       if (editProduct) {
-        await modules.Product.update(editProduct.id, data);
+        await base44.entities.Product.update(editProduct.id, data);
         toast({ title: "Product updated" });
       } else {
-        await modules.Product.create(data);
+        await base44.entities.Product.create(data);
         toast({ title: "Product created" });
       }
       setShowForm(false);
@@ -99,7 +99,7 @@ export default function ProductsTab({ products, onReload }) {
 
   const deleteProduct = async (id) => {
     try {
-      await modules.Product.delete(id);
+      await base44.entities.Product.delete(id);
       toast({ title: "Product deleted" });
       await onReload();
     } catch (e) {}

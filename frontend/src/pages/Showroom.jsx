@@ -27,7 +27,7 @@ export default function Showroom() {
 
   useEffect(() => {
     loadData();
-    const unsub = modules.Showroom.subscribe(() => loadData());
+    const unsub = base44.entities.Showroom.subscribe(() => loadData());
     return unsub;
   }, []);
 
@@ -35,7 +35,7 @@ export default function Showroom() {
     try {
       const me = await base44.auth.me().catch(() => null);
       setUser(me);
-      const data = await modules.Showroom.filter({ status: "live" }, "-created_date", 50);
+      const data = await base44.entities.Showroom.filter({ status: "live" }, "-created_date", 50);
       setRooms(data);
     } catch (e) {}
     setLoading(false);
@@ -52,7 +52,7 @@ export default function Showroom() {
     }
     setCreating(true);
     try {
-      const room = await modules.Showroom.create({
+      const room = await base44.entities.Showroom.create({
         title: form.title.trim(),
         description: form.description.trim(),
         host_name: user.full_name || "User",

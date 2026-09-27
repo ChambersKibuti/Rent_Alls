@@ -29,7 +29,7 @@ export default function RatingModal({
     }
     setSubmitting(true);
     try {
-      await modules.Rating.create({
+      await base44.entities.Rating.create({
         rater_id: raterId,
         rater_name: raterName,
         rated_id: ratedId,
@@ -43,12 +43,12 @@ export default function RatingModal({
       });
 
       // Update aggregate rating on the rated entity
-      const allRatings = await modules.Rating.filter({ rated_id: ratedId }, "-created_date", 500);
+      const allRatings = await base44.entities.Rating.filter({ rated_id: ratedId }, "-created_date", 500);
       const total = allRatings.length;
       const avg = total > 0 ? allRatings.reduce((s, r) => s + (r.rating || 0), 0) / total : 0;
 
       if (ratedRole === "seller") {
-        await modules.Seller.update(ratedId, {
+        await base44.entities.Seller.update(ratedId, {
           average_rating: Math.round(avg * 10) / 10,
           total_ratings: total,
           fee_waiver: avg >= 5.0,

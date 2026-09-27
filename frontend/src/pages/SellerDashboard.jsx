@@ -58,14 +58,14 @@ export default function SellerDashboard() {
     try {
       const me = await base44.auth.me();
       setUser(me);
-      const sellers = await modules.Seller.filter({ created_by_id: me.id }, "-created_date", 1);
+      const sellers = await base44.entities.Seller.filter({ created_by_id: me.id }, "-created_date", 1);
       if (sellers.length > 0) {
         const mySeller = sellers[0];
         setSeller(mySeller);
         const [prods, cls, pays] = await Promise.all([
-          modules.Product.filter({ seller_id: mySeller.id }, "-created_date", 100),
-          modules.Client.filter({ seller_id: mySeller.id }, "-created_date", 100),
-          modules.Payment.filter({ seller_id: mySeller.id }, "-created_date", 200),
+          base44.entities.Product.filter({ seller_id: mySeller.id }, "-created_date", 100),
+          base44.entities.Client.filter({ seller_id: mySeller.id }, "-created_date", 100),
+          base44.entities.Payment.filter({ seller_id: mySeller.id }, "-created_date", 200),
         ]);
         setProducts(prods);
         setClients(cls);
@@ -73,7 +73,7 @@ export default function SellerDashboard() {
 
         // Fetch ratings the seller has given (to know which buyers they already rated)
         try {
-          const myRatings = await modules.Rating.filter({ rater_id: me.id }, "-created_date", 200);
+          const myRatings = await base44.entities.Rating.filter({ rater_id: me.id }, "-created_date", 200);
           const ratingMap = {};
           myRatings.forEach(r => { if (r.payment_id) ratingMap[r.payment_id] = r; });
           setBuyerRatings(ratingMap);
@@ -83,7 +83,7 @@ export default function SellerDashboard() {
         if (isSubscriptionExpired(mySeller) && mySeller.status !== "Expired") {
           const totalSales = computeTotalSales(mySeller.id, pays);
           const rebate = checkRebateEligibility(mySeller, totalSales);
-          await modules.Seller.update(mySeller.id, {
+          await base44.entities.Seller.update(mySeller.id, {
             status: "Expired",
             total_sales: totalSales,
             rebate_status: rebate.status,
@@ -156,10 +156,10 @@ export default function SellerDashboard() {
         seller_id: seller.id,
       };
       if (editProduct) {
-        await modules.Product.update(editProduct.id, data);
+        await base44.entities.Product.update(editProduct.id, data);
         toast({ title: "Product updated" });
       } else {
-        await modules.Product.create(data);
+        await base44.entities.Product.create(data);
         toast({ title: "Product created" });
       }
       setShowForm(false);
@@ -175,7 +175,7 @@ export default function SellerDashboard() {
   const deleteProduct = async (id) => {
     if (!confirm("Delete this product?")) return;
     try {
-      await modules.Product.delete(id);
+      await base44.entities.Product.delete(id);
       toast({ title: "Product deleted" });
       await loadData();
     } catch (e) {}
@@ -189,7 +189,7 @@ export default function SellerDashboard() {
     setSaving(true);
     try {
       const product = products.find(p => p.id === clientForm.product_id);
-      await modules.Client.create({
+      await base44.entities.Client.create({
         ...clientForm,
         product_title: product?.title || "",
         seller_id: seller.id,
@@ -208,11 +208,11 @@ export default function SellerDashboard() {
   const dismissClient = async (client) => {
     if (!confirm(`Dismiss ${client.client_name}? This will free up one unit of inventory.`)) return;
     try {
-      await modules.Client.update(client.id, { status: "Dismissed" });
+      await base44.entities.Client.update(client.id, { status: "Dismissed" });
       // Restore quantity
       const product = products.find(p => p.id === client.product_id);
       if (product) {
-        await modules.Product.update(product.id, {
+        await base44.entities.Product.update(product.id, {
           quantity_available: (product.quantity_available || 0) + 1,
           status: product.quantity_available + 1 > 0 ? "Available" : product.status,
         });
@@ -224,7 +224,7 @@ export default function SellerDashboard() {
 
   const reactivateClient = async (client) => {
     try {
-      await modules.Client.update(client.id, { status: "Active" });
+      await base44.entities.Client.update(client.id, { status: "Active" });
       toast({ title: "Client reactivated" });
       await loadData();
     } catch (e) {}

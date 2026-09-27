@@ -34,15 +34,15 @@ export default function Profile() {
       const me = await base44.auth.me();
       setUser(me);
       const [paymentsData, concernsData] = await Promise.all([
-        modules.Payment.filter({ created_by_id: me.id }, "-created_date", 100),
-        modules.Concern.filter({ created_by_id: me.id }, "-created_date", 50),
+        base44.entities.Payment.filter({ created_by_id: me.id }, "-created_date", 100),
+        base44.entities.Concern.filter({ created_by_id: me.id }, "-created_date", 50),
       ]);
       setPayments(paymentsData);
       setConcerns(concernsData);
 
       // Fetch ratings the buyer has given (to know which sellers they already rated)
       try {
-        const myRatings = await modules.Rating.filter({ rater_id: me.id }, "-created_date", 200);
+        const myRatings = await base44.entities.Rating.filter({ rater_id: me.id }, "-created_date", 200);
         const ratingMap = {};
         myRatings.forEach(r => {
           if (r.payment_id) ratingMap[r.payment_id] = r;
@@ -52,7 +52,7 @@ export default function Profile() {
 
       // Fetch ratings the buyer has received (computed on-the-fly since User entity is read-only for others)
       try {
-        const received = await modules.Rating.filter({ rated_id: me.id, rated_role: "buyer" }, "-created_date", 200);
+        const received = await base44.entities.Rating.filter({ rated_id: me.id, rated_role: "buyer" }, "-created_date", 200);
         const total = received.length;
         const avg = total > 0 ? received.reduce((s, r) => s + (r.rating || 0), 0) / total : 0;
         setBuyerRating({ avg: Math.round(avg * 10) / 10, total });
@@ -65,7 +65,7 @@ export default function Profile() {
     if (!concernSubject.trim() || !concernMessage.trim()) return;
     setSubmitting(true);
     try {
-      await modules.Concern.create({
+      await base44.entities.Concern.create({
         payment_id: payment.id,
         product_title: payment.product_title,
         subject: concernSubject,

@@ -21,7 +21,7 @@ export default function SellersTab({ payments }) {
 
   const loadSellers = async () => {
     try {
-      const data = await modules.Seller.list("-created_date", 200);
+      const data = await base44.entities.Seller.list("-created_date", 200);
       setSellers(data);
     } catch (e) {}
     setLoading(false);
@@ -36,7 +36,7 @@ export default function SellersTab({ payments }) {
         if (isSubscriptionExpired(seller) && seller.status !== "Expired") {
           const totalSales = computeTotalSales(seller.id, payments);
           const rebate = checkRebateEligibility(seller, totalSales);
-          await modules.Seller.update(seller.id, {
+          await base44.entities.Seller.update(seller.id, {
             status: "Expired",
             total_sales: totalSales,
             rebate_status: rebate.status,
@@ -59,7 +59,7 @@ export default function SellersTab({ payments }) {
 
   const processRebate = async (seller) => {
     try {
-      await modules.Seller.update(seller.id, { rebate_status: "Paid" });
+      await base44.entities.Seller.update(seller.id, { rebate_status: "Paid" });
       await loadSellers();
       toast({ title: "Rebate processed", description: `KSH ${seller.rebate_amount} rebated to ${seller.business_name}.` });
     } catch (e) {

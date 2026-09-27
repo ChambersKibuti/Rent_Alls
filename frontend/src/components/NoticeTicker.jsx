@@ -9,7 +9,7 @@ export default function NoticeTicker() {
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
-    modules.Notice.filter({ is_active: true }, "-created_date", 5)
+    base44.entities.Notice.filter({ is_active: true }, "-created_date", 5)
       .then(setNotices)
       .catch(() => {});
   }, []);

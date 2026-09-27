@@ -19,7 +19,7 @@ export default function PaymentsTab() {
 
   const loadPayments = async () => {
     try {
-      setPayments(await modules.Payment.list("-created_date", 200));
+      setPayments(await base44.entities.Payment.list("-created_date", 200));
     } catch (error) {
       toast({ title: "Could not load payments", description: error.message, variant: "destructive" });
     } finally {

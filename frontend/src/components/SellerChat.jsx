@@ -18,7 +18,7 @@ export default function SellerChat({ productId, sellerId, sellerName, isOpen, on
     if (!isOpen || !productId) return;
     loadMessages();
     // Polling-based live updates (see base44Client.js) — reload on every tick.
-    const unsubscribe = modules.ChatMessage.subscribe(() => {
+    const unsubscribe = base44.entities.ChatMessage.subscribe(() => {
       loadMessages();
     });
     return () => unsubscribe();
@@ -30,7 +30,7 @@ export default function SellerChat({ productId, sellerId, sellerName, isOpen, on
 
   const loadMessages = async () => {
     try {
-      const msgs = await modules.ChatMessage.filter(
+      const msgs = await base44.entities.ChatMessage.filter(
         { product_id: productId, conversation_type: "Seller" },
         "created_date",
         50
@@ -43,7 +43,7 @@ export default function SellerChat({ productId, sellerId, sellerName, isOpen, on
     if (!input.trim() || !user) return;
     setLoading(true);
     try {
-      await modules.ChatMessage.create({
+      await base44.entities.ChatMessage.create({
         product_id: productId,
         seller_id: sellerId,
         buyer_id: user.id,

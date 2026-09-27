@@ -16,7 +16,7 @@ export default function Home() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    modules.Product.list("-created_date", 6).
+    base44.entities.Product.list("-created_date", 6).
     then(setProducts).
     catch(() => {}).
     finally(() => setLoading(false));

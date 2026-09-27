@@ -41,12 +41,12 @@ export default function AdminBackend() {
       const me = await base44.auth.me();
       setUser(me);
       const [prods, sels, pays, nots, concs, msgs] = await Promise.all([
-        modules.Product.list("-created_date", 200),
-        modules.Seller.list("-created_date", 200),
-        modules.Payment.list("-created_date", 200),
-        modules.Notice.list("-created_date", 50),
-        modules.Concern.list("-created_date", 50),
-        modules.ChatMessage.list("-created_date", 100),
+        base44.entities.Product.list("-created_date", 200),
+        base44.entities.Seller.list("-created_date", 200),
+        base44.entities.Payment.list("-created_date", 200),
+        base44.entities.Notice.list("-created_date", 50),
+        base44.entities.Concern.list("-created_date", 50),
+        base44.entities.ChatMessage.list("-created_date", 100),
       ]);
       setProducts(prods);
       setSellers(sels);
@@ -62,7 +62,7 @@ export default function AdminBackend() {
     if (!noticeForm.title || !noticeForm.message) return;
     setSaving(true);
     try {
-      await modules.Notice.create(noticeForm);
+      await base44.entities.Notice.create(noticeForm);
       toast({ title: "Notice published" });
       setShowNoticeForm(false);
       setNoticeForm(emptyNotice);
@@ -73,7 +73,7 @@ export default function AdminBackend() {
 
   const deleteNotice = async (id) => {
     try {
-      await modules.Notice.delete(id);
+      await base44.entities.Notice.delete(id);
       await loadAll();
     } catch (e) {}
   };
@@ -82,7 +82,7 @@ export default function AdminBackend() {
     if (!replyText.trim()) return;
     setSaving(true);
     try {
-      await modules.Concern.update(concern.id, { admin_reply: replyText, status: "Resolved" });
+      await base44.entities.Concern.update(concern.id, { admin_reply: replyText, status: "Resolved" });
       toast({ title: "Reply sent" });
       setReplyingConcern(null);
       setReplyText("");

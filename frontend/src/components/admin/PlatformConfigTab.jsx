@@ -17,7 +17,7 @@ export default function PlatformConfigTab() {
 
   const loadConfig = async () => {
     try {
-      const configs = await modules.PlatformConfig.list("-created_date", 1);
+      const configs = await base44.entities.PlatformConfig.list("-created_date", 1);
       if (configs.length > 0) {
         setConfig(configs[0]);
       } else {
@@ -46,9 +46,9 @@ export default function PlatformConfigTab() {
     setSaving(true);
     try {
       if (config.id) {
-        await modules.PlatformConfig.update(config.id, config);
+        await base44.entities.PlatformConfig.update(config.id, config);
       } else {
-        const created = await modules.PlatformConfig.create(config);
+        const created = await base44.entities.PlatformConfig.create(config);
         setConfig(created);
       }
       toast({ title: "Platform config saved", description: "Commission payment details updated." });

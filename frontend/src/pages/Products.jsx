@@ -23,7 +23,7 @@ export default function Products() {
   const [selectedProduct, setSelectedProduct] = useState(null);
 
   useEffect(() => {
-    modules.Product.list("-created_date", 200).
+    base44.entities.Product.list("-created_date", 200).
     then(setProducts).
     catch(() => {}).
     finally(() => setLoading(false));
