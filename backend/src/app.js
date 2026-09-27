@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { connectDB } from './lib/db.js';
 import authRoutes from './routes/auth.js';
-import entityRoutes from './routes/entities.js';
+import entityRoutes from './routes/modules.js';
 import uploadRoutes from './routes/upload.js';
 import emailRoutes from './routes/email.js';
 import paymentRoutes from './routes/payments.js';
@@ -52,7 +52,7 @@ app.use(async (req, res, next) => {
 });
 
 app.use('/api/auth', authRoutes);
-app.use('/api/entities', entityRoutes);
+app.use('/api/modules', entityRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/email', emailRoutes);
 app.use('/api/payments', paymentRoutes);

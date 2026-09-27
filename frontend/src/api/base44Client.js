@@ -26,7 +26,7 @@ function buildEntityApi(name) {
   return {
     async list(sort = '-created_date', limit = 200) {
       const qs = new URLSearchParams({ sort, limit: String(limit) });
-      return asList(await request(`/entities/${name}?${qs.toString()}`));
+      return asList(await request(`/modules/${name}?${qs.toString()}`));
     },
     async filter(query = {}, sort = '-created_date', limit = 200) {
       const qs = new URLSearchParams({
@@ -34,23 +34,23 @@ function buildEntityApi(name) {
         limit: String(limit),
         filter: JSON.stringify(query),
       });
-      return asList(await request(`/entities/${name}?${qs.toString()}`));
+      return asList(await request(`/modules/${name}?${qs.toString()}`));
     },
     async get(id) {
-      const results = await request(`/entities/${name}?${new URLSearchParams({
+      const results = await request(`/modules/${name}?${new URLSearchParams({
         filter: JSON.stringify({ _id: id }),
         limit: '1',
       })}`);
       return results[0] || null;
     },
     async create(data) {
-      return request(`/entities/${name}`, { method: 'POST', body: data });
+      return request(`/modules/${name}`, { method: 'POST', body: data });
     },
     async update(id, data) {
-      return request(`/entities/${name}/${id}`, { method: 'PUT', body: data });
+      return request(`/modules/${name}/${id}`, { method: 'PUT', body: data });
     },
     async delete(id) {
-      return request(`/entities/${name}/${id}`, { method: 'DELETE' });
+      return request(`/modules/${name}/${id}`, { method: 'DELETE' });
     },
     // Real-time subscriptions aren't provided by the plain REST API -- this
     // lightweight polling shim keeps existing components (chat, showroom,
@@ -65,7 +65,7 @@ function buildEntityApi(name) {
   };
 }
 
-const entities = ENTITY_NAMES.reduce((acc, name) => {
+const modules = ENTITY_NAMES.reduce((acc, name) => {
   acc[name] = buildEntityApi(name);
   return acc;
 }, {});
@@ -170,4 +170,4 @@ const admin = {
   },
 };
 
-export const base44 = { auth, entities, integrations, payments, admin };
+export const base44 = { auth, modules, integrations, payments, admin };

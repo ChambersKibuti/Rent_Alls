@@ -74,7 +74,7 @@ the backend automatically.
 │       │   └── User.js               Extended with auth fields (password_hash, OTP, etc.)
 │       └── routes/
 │           ├── auth.js               register / verify-otp / login / me / password reset
-│           ├── entities.js            Generic CRUD for all entities (list/filter/create/update/delete)
+│           ├── modules.js            Generic CRUD for all modules (list/filter/create/update/delete)
 │           ├── upload.js              multipart file upload -> base64 data URL
 │           └── email.js                Send email (used by integrations.Core.SendEmail)
 │
@@ -143,11 +143,11 @@ the backend automatically.
   instead of base44's hosted backend — kept ~90 components unmodified.
 - `frontend/src/lib/AuthContext.jsx` was rewritten to drop the
   base44-SDK-specific axios client.
-- Entity schemas (`base44/entities/*.jsonc` in the original export) became
+- Entity schemas (`base44/modules/*.jsonc` in the original export) became
   Mongoose models in `backend/src/models/`.
 - Each entity's original row-level-security rules were re-implemented as
   a simplified access layer in `backend/src/lib/entityRules.js` +
-  `backend/src/routes/entities.js`.
+  `backend/src/routes/modules.js`.
 - Real-time features (`.subscribe()` in chat/showroom) poll every few
   seconds instead of push-based events, since a plain REST API has no
   live channel.
