@@ -18,6 +18,9 @@ const schema = new mongoose.Schema({
   seller_id: { type: String },
   buyer_average_rating: { type: Number, default: 0 },
   buyer_total_ratings: { type: Number, default: 0 },
+  free_product_access: { type: Boolean, default: false },
+  rebate_amount: { type: Number, default: 0 },
+  rebate_status: { type: String, enum: ["None", "Eligible", "Paid"], default: "None" },
   created_by_id: { type: String },
   created_by_email: { type: String },
 }, { timestamps: { createdAt: 'created_date', updatedAt: 'updated_date' } });

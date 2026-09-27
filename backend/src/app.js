@@ -6,6 +6,8 @@ import authRoutes from './routes/auth.js';
 import entityRoutes from './routes/entities.js';
 import uploadRoutes from './routes/upload.js';
 import emailRoutes from './routes/email.js';
+import paymentRoutes from './routes/payments.js';
+import adminRoutes from './routes/admin.js';
 
 const app = express();
 
@@ -53,6 +55,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/entities', entityRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/email', emailRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found' }));
 

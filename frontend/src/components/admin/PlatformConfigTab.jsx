@@ -28,6 +28,7 @@ export default function PlatformConfigTab() {
           commission_bank_name: "",
           commission_rate: 0.2,
           rebate_multiplier: 100,
+          seller_subscription_required: true,
           platform_name: "RentAlls",
         });
       }
@@ -78,6 +79,18 @@ export default function PlatformConfigTab() {
       </div>
 
       <div className="bg-white border border-zinc-200 rounded-2xl p-6 space-y-5">
+        <label className="flex items-start gap-3 rounded-lg border border-zinc-200 p-4">
+          <input
+            type="checkbox"
+            checked={config.seller_subscription_required !== false}
+            onChange={(event) => setConfig((current) => ({ ...current, seller_subscription_required: event.target.checked }))}
+            className="mt-0.5 h-4 w-4 accent-[#2E5BFF]"
+          />
+          <span>
+            <span className="block text-sm font-semibold text-zinc-900">Require paid seller subscriptions</span>
+            <span className="mt-1 block text-xs text-zinc-500">When disabled, sellers can list products without submitting a subscription payment.</span>
+          </span>
+        </label>
         <div className="bg-[#FF9800]/5 border border-[#FF9800]/20 rounded-xl p-4">
           <p className="text-xs text-zinc-600">
             <span className="text-[#FF9800] font-bold">Important:</span> Commission payments from buyers are directed to the RentAlls admin payment method configured here. Rental payments go directly to each seller's own payment method.

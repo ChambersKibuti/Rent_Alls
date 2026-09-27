@@ -8,6 +8,7 @@ import ProductsTab from "@/components/admin/ProductsTab";
 import SellersTab from "@/components/admin/SellersTab";
 import PaymentsTab from "@/components/admin/PaymentsTab";
 import PlatformConfigTab from "@/components/admin/PlatformConfigTab";
+import ActivityTab from "@/components/admin/ActivityTab";
 import { computeTotalSales } from "@/lib/subscriptionUtils";
 
 const emptyNotice = { title: "", message: "", priority: "Normal", is_active: true, product_id: "" };
@@ -178,6 +179,8 @@ export default function AdminBackend() {
       {tab === "sellers" && <SellersTab payments={payments} />}
 
       {tab === "payments" && <PaymentsTab />}
+
+      {tab === "activity" && <ActivityTab />}
 
       {tab === "config" && <PlatformConfigTab />}
 

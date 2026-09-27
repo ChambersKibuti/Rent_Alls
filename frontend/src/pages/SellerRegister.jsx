@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PageLayout from "@/components/PageLayout";
+import PaymentProofForm from "@/components/PaymentProofForm";
 import { motion } from "framer-motion";
 import { Check, Loader2, Store, Calendar, Phone, Mail, MapPin, ArrowLeft, Home, CreditCard, Package, Lock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -29,8 +30,12 @@ export default function SellerRegister() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [paymentPolicy, setPaymentPolicy] = useState({ seller_subscription_required: true });
+  const [pendingSellerId, setPendingSellerId] = useState(null);
+  const [paymentSubmitted, setPaymentSubmitted] = useState(false);
 
   useEffect(() => {
+    base44.payments.policy().then(setPaymentPolicy).catch(() => {});
     base44.auth.me().then(async (me) => {
       setUser(me);
       if (me) {
@@ -76,6 +81,17 @@ export default function SellerRegister() {
     return seller;
   };
 
+  const finishSellerSetup = async (seller) => {
+    await base44.auth.updateMe({ full_name: form.business_name, phone: form.phone, user_type: "seller", seller_id: seller.id });
+    if (paymentPolicy.seller_subscription_required) {
+      setPendingSellerId(seller.id);
+      return;
+    }
+    setSuccess(true);
+    toast({ title: "Seller account activated", description: "Subscription requirements are currently disabled." });
+    setTimeout(() => navigate("/seller-dashboard"), 1200);
+  };
+
   const handleDetailsSubmit = async () => {
     if (!form.business_name || !selectedPlan) {
       toast({ title: "Missing fields", description: "Please enter your business name and select a plan.", variant: "destructive" });
@@ -111,10 +127,7 @@ export default function SellerRegister() {
       setSubmitting(true);
       try {
         const seller = await createSellerRecord();
-        await base44.auth.updateMe({ full_name: form.business_name, phone: form.phone, user_type: "seller", seller_id: seller.id });
-        setSuccess(true);
-        toast({ title: "Seller Account Created!", description: "Your subscription is now active." });
-        setTimeout(() => navigate("/seller-dashboard"), 2000);
+        await finishSellerSetup(seller);
       } catch (e) {
         toast({ title: "Registration failed", description: e.message || "Could not create seller account.", variant: "destructive" });
       } finally {
@@ -124,26 +137,9 @@ export default function SellerRegister() {
   };
 
   async function completeSellerRegistration() {
-    await base44.auth.updateMe({
-      full_name: form.business_name,
-      phone: form.phone,
-      user_type: "seller"
-    });
     const seller = await createSellerRecord();
-    await base44.auth.updateMe({ seller_id: seller.id });
-    try {
-      await base44.integrations.Core.SendEmail({
-        to: form.email || user?.email,
-        subject: "Welcome to RentAlls Sellers!",
-        body: `Hi ${form.business_name},\n\nYour seller account is now active! Your subscription plan is ${plans.find((p) => p.id === selectedPlan)?.label}.\n\nYou can now list your products, manage clients, and grow your rental business from your dashboard.\n\nThe RentAlls Team`
-      });
-    } catch (e) {
-
-      /* non-critical */}
-    setSuccess(true);
-    toast({ title: "Seller Account Created!", description: "Your subscription is now active." });
-    setTimeout(() => {window.location.href = "/seller-dashboard";}, 2000);
-  };
+    await finishSellerSetup(seller);
+  }
 
   if (loading) {
     return (
@@ -165,6 +161,32 @@ export default function SellerRegister() {
         </motion.div>
       </div>);
 
+  }
+
+  if (pendingSellerId) {
+    return (
+      <PageLayout>
+        <div className="mx-auto max-w-lg px-4 pb-32 pt-28 sm:px-6">
+          <div className="rounded-xl border border-zinc-200 bg-white p-6">
+            <h1 className="mb-2 text-xl font-bold text-zinc-900">Seller subscription payment</h1>
+            {paymentSubmitted ? (
+              <div className="space-y-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                <p>Payment confirmation submitted. Your seller subscription and listing access will activate after admin approval.</p>
+                <Link to="/seller-dashboard" className="inline-flex rounded-md bg-white px-3 py-2 text-xs font-semibold text-zinc-800">Check seller dashboard</Link>
+              </div>
+            ) : (
+              <PaymentProofForm
+                purpose="seller_subscription"
+                context={{ seller_id: pendingSellerId, plan_id: selectedPlan }}
+                amount={plans.find((plan) => plan.id === selectedPlan)?.price}
+                instructions={`Pay RentAlls Admin via ${paymentPolicy.commission_payment_method || "Bank Transfer"}${paymentPolicy.commission_account_name ? ` · ${paymentPolicy.commission_account_name}` : ""}${paymentPolicy.commission_bank_name ? ` · ${paymentPolicy.commission_bank_name}` : ""}${paymentPolicy.commission_account_number ? ` · Account ${paymentPolicy.commission_account_number}` : ""}.`}
+                onSubmitted={() => setPaymentSubmitted(true)}
+              />
+            )}
+          </div>
+        </div>
+      </PageLayout>
+    );
   }
 
   return (

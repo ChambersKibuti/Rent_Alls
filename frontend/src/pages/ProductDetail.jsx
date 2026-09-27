@@ -10,6 +10,7 @@ import { ArrowLeft, MessageCircle, Tag, Clock, Info, Shield, Lock, CheckCircle2,
 import { useToast } from "@/components/ui/use-toast";
 import RatingStars from "@/components/RatingStars";
 import RatingModal from "@/components/RatingModal";
+import PaymentProofForm from "@/components/PaymentProofForm";
 
 export default function ProductDetail() {
   const { id } = useParams();
@@ -25,6 +26,7 @@ export default function ProductDetail() {
   const [rentModal, setRentModal] = useState(false);
   const [paying, setPaying] = useState(false);
   const [revealed, setRevealed] = useState(false);
+  const [accessPending, setAccessPending] = useState(false);
   const [rentPaid, setRentPaid] = useState(false);
   const [rentalDays, setRentalDays] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
@@ -38,8 +40,16 @@ export default function ProductDetail() {
   }, []);
 
   useEffect(() => {
-    base44.entities.PlatformConfig.list("-created_date", 1)
-      .then((configs) => { if (configs.length) setPlatformConfig(configs[0]); })
+    if (!user || !product) return;
+    base44.payments.productAccess(id).then((access) => {
+      setRevealed(access.has_access);
+      setAccessPending(Boolean(access.pending_payment));
+    }).catch(() => {});
+  }, [id, product, user]);
+
+  useEffect(() => {
+    base44.payments.policy()
+      .then(setPlatformConfig)
       .catch(() => {});
   }, []);
 
@@ -47,72 +57,43 @@ export default function ProductDetail() {
     base44.entities.Product.get(id)
       .then(async (p) => {
         setProduct(p);
-        if (p.seller_id) {
-          try {
-            const sellers = await base44.entities.Seller.filter({ id: p.seller_id }, "-created_date", 1);
-            if (sellers.length) {
-              setSeller(sellers[0]);
-              const ratings = await base44.entities.Rating.filter({ rated_id: p.seller_id, rated_role: "seller" }, "-created_date", 100);
-              setSellerRatings(ratings);
-            }
-          } catch (e) {}
-        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [id]);
 
+  useEffect(() => {
+    if (!product || !revealed || !product.seller_id) return;
+    base44.entities.Seller.filter({ id: product.seller_id }, "-created_date", 1)
+      .then(async (sellers) => {
+        if (!sellers.length) return;
+        setSeller(sellers[0]);
+        try {
+          setSellerRatings(await base44.entities.Rating.filter({ rated_id: product.seller_id, rated_role: "seller" }, "-created_date", 100));
+        } catch (error) {}
+      })
+      .catch(() => {});
+  }, [product, revealed]);
+
   const commissionRate = platformConfig?.commission_rate ?? 0.2;
   const commissionAmount = product ? product.price_per_day * commissionRate : 0;
   const rentAmount = product ? product.price_per_day * rentalDays : 0;
 
-  const handlePayCommission = async () => {
-    if (!user) {
-      toast({ title: "Please sign in", description: "You need an account to continue.", variant: "destructive" });
-      return;
-    }
-    setPaying(true);
+  const handleAccessSubmitted = () => {
+    setCommissionModal(false);
+    setAccessPending(true);
+    toast({ title: "Payment submitted", description: "Seller contact will unlock after admin approval." });
+  };
+
+  const checkProductAccess = async () => {
     try {
-      const ref = "RA-COM-" + Date.now().toString(36).toUpperCase();
-      const sellerContact = seller
-        ? `${seller.business_name} | Phone: ${seller.phone || "N/A"} | Email: ${seller.email || "N/A"}`
-        : "Seller contact pending";
-
-      await base44.entities.Payment.create({
-        product_id: product.id,
-        product_title: product.title,
-        amount: commissionAmount,
-        commission_amount: commissionAmount,
-        commission_paid: true,
-        rent_paid: false,
-        seller_revealed: true,
-        seller_contact: sellerContact,
-        payment_type: "Commission",
-        payment_method: platformConfig?.commission_payment_method || "Bank Transfer",
-        status: "Completed",
-        reference_number: ref,
-        seller_id: product.seller_id || "",
-        commission_destination: platformConfig
-          ? `RentAlls Admin · ${platformConfig.commission_payment_method} · ${platformConfig.commission_account_name || ""} · ${platformConfig.commission_account_number || ""}`
-          : "RentAlls Admin",
-      });
-
-      await base44.entities.Client.create({
-        product_id: product.id,
-        product_title: product.title,
-        seller_id: product.seller_id || "",
-        client_name: user.full_name || user.email,
-        client_phone: "",
-        client_email: user.email,
-        status: "Active",
-      });
-
-      setRevealed(true);
-      toast({ title: "Commission Paid!", description: "Seller contact revealed. You can now chat with the seller." });
-    } catch (e) {
-      toast({ title: "Payment Failed", description: "Please try again.", variant: "destructive" });
+      const access = await base44.payments.productAccess(id);
+      setRevealed(access.has_access);
+      setAccessPending(Boolean(access.pending_payment));
+      if (access.has_access) toast({ title: "Payment approved", description: "Seller contact is now available." });
+    } catch (error) {
+      toast({ title: "Could not check payment status", description: error.message, variant: "destructive" });
     }
-    setPaying(false);
   };
 
   const handlePayRent = async () => {
@@ -365,6 +346,11 @@ export default function ProductDetail() {
             {/* Actions */}
             <div className="flex flex-col gap-3">
               {!revealed ? (
+                accessPending ? (
+                  <button onClick={checkProductAccess} className="w-full rounded-xl border border-amber-200 bg-amber-50 py-3.5 font-semibold text-amber-800">
+                    Payment awaiting admin approval · Check status
+                  </button>
+                ) : (
                 <button
                   onClick={() => {
                     if (!user) { toast({ title: "Please sign in", variant: "destructive" }); return; }
@@ -375,6 +361,7 @@ export default function ProductDetail() {
                   <Lock size={18} />
                   Pay {(commissionRate * 100).toFixed(0)}% Commission (KSH {commissionAmount.toFixed(2)})
                 </button>
+                )
               ) : (
                 <>
                   {!rentPaid && (
@@ -435,27 +422,13 @@ export default function ProductDetail() {
                 <p className="text-zinc-500 text-xs mt-1">Paid to RentAlls Admin to unlock seller contact</p>
               </div>
               <div className="p-5">
-                <div className="bg-zinc-100 rounded-xl p-4 mb-4 space-y-2">
-                  <div className="flex justify-between text-sm"><span className="text-zinc-500">Product</span><span className="text-zinc-900">{product.title}</span></div>
-                  <div className="flex justify-between text-sm"><span className="text-zinc-500">Daily Rate</span><span className="text-zinc-900">KSH {product.price_per_day}</span></div>
-                  <div className="flex justify-between text-sm pt-2 border-t border-zinc-200"><span className="text-zinc-500">Commission ({(commissionRate * 100).toFixed(0)}%)</span><span className="text-[#FF9800] font-bold">KSH {commissionAmount.toFixed(2)}</span></div>
-                </div>
-                <div className="bg-[#FF9800]/5 border border-[#FF9800]/20 rounded-lg p-3 mb-4 space-y-1">
-                  <p className="text-[#FF9800] text-xs flex items-center gap-1"><ArrowRight size={12} /> Directed to: RentAlls Admin</p>
-                  <p className="text-[#FF9800] text-xs">Method: {platformConfig?.commission_payment_method || "Bank Transfer"}</p>
-                  {platformConfig?.commission_account_name && <p className="text-[#FF9800] text-xs">Account: {platformConfig.commission_account_name}</p>}
-                  {platformConfig?.commission_account_number && <p className="text-[#FF9800] text-xs">No: {platformConfig.commission_account_number}</p>}
-                </div>
-                <div className="bg-[#00E676]/5 border border-[#00E676]/20 rounded-lg p-3 mb-4">
-                  <p className="text-[#00E676] text-xs">✓ Seller contact will be revealed instantly</p>
-                  <p className="text-[#00E676] text-xs">✓ You'll be able to chat directly with the seller</p>
-                  <p className="text-[#00E676] text-xs">✓ Registered as a client</p>
-                </div>
-                <button onClick={handlePayCommission} disabled={paying}
-                  className="w-full py-3.5 bg-[#2E5BFF] text-white font-semibold rounded-xl flex items-center justify-center gap-2 disabled:opacity-50">
-                  {paying ? <Loader2 size={18} className="animate-spin" /> : <Lock size={18} />}
-                  {paying ? "Processing..." : `Pay KSH ${commissionAmount.toFixed(2)}`}
-                </button>
+                <PaymentProofForm
+                  purpose="product_access"
+                  context={{ product_id: product.id }}
+                  amount={commissionAmount}
+                  instructions={`Pay to RentAlls Admin via ${platformConfig?.commission_payment_method || "Bank Transfer"}${platformConfig?.commission_account_number ? ` · Account ${platformConfig.commission_account_number}` : ""}. Access unlocks after admin approval.`}
+                  onSubmitted={handleAccessSubmitted}
+                />
               </div>
             </motion.div>
           </motion.div>

@@ -7,6 +7,7 @@ const schema = new mongoose.Schema({
   commission_bank_name: { type: String },
   commission_rate: { type: Number, default: 0.2 },
   rebate_multiplier: { type: Number, default: 100 },
+  seller_subscription_required: { type: Boolean, default: true },
   platform_name: { type: String, default: "RentAll" },
   created_by_id: { type: String },
   created_by_email: { type: String },

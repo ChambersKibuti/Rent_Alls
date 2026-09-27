@@ -137,4 +137,37 @@ const integrations = {
   },
 };
 
-export const base44 = { auth, entities, integrations };
+const payments = {
+  policy() {
+    return request('/payments/policy');
+  },
+  submit(data) {
+    return request('/payments/submit', { method: 'POST', body: data });
+  },
+  productAccess(productId) {
+    return request(`/payments/product-access/${encodeURIComponent(productId)}`);
+  },
+  approve(paymentId) {
+    return request(`/payments/${encodeURIComponent(paymentId)}/approve`, { method: 'POST', body: {} });
+  },
+  reject(paymentId, reviewNote = '') {
+    return request(`/payments/${encodeURIComponent(paymentId)}/reject`, {
+      method: 'POST',
+      body: { review_note: reviewNote },
+    });
+  },
+};
+
+const admin = {
+  portfolio() {
+    return request('/admin/portfolio');
+  },
+  updateUserBenefits(userId, benefits) {
+    return request(`/admin/users/${encodeURIComponent(userId)}/benefits`, { method: 'PATCH', body: benefits });
+  },
+  updateSellerBenefits(sellerId, benefits) {
+    return request(`/admin/sellers/${encodeURIComponent(sellerId)}/benefits`, { method: 'PATCH', body: benefits });
+  },
+};
+
+export const base44 = { auth, entities, integrations, payments, admin };

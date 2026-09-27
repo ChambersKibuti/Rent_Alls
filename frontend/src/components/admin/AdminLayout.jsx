@@ -1,9 +1,9 @@
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   LayoutDashboard, Package, Store, CreditCard, Settings,
-  Bell, AlertCircle, MessageSquare, LogOut, Home } from
+  Bell, AlertCircle, MessageSquare, LogOut, Home, Activity } from
 "lucide-react";
 import { base44 } from "@/api/base44Client";
 
@@ -12,6 +12,7 @@ const navItems = [
 { id: "products", label: "Products", icon: Package, path: "/admin-backend?tab=products" },
 { id: "sellers", label: "Sellers", icon: Store, path: "/admin-backend?tab=sellers" },
 { id: "payments", label: "Payments", icon: CreditCard, path: "/admin-backend?tab=payments" },
+{ id: "activity", label: "Activity & Benefits", icon: Activity, path: "/admin-backend?tab=activity" },
 { id: "config", label: "Platform Config", icon: Settings, path: "/admin-backend?tab=config" },
 { id: "notices", label: "Notices", icon: Bell, path: "/admin-backend?tab=notices" },
 { id: "concerns", label: "Concerns", icon: AlertCircle, path: "/admin-backend?tab=concerns" },
