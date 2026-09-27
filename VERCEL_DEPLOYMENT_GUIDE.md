@@ -8,17 +8,14 @@ This project uses a **split deployment model**: frontend and backend are separat
 
 ### Environment Variables (Vercel Dashboard → Settings → Environment Variables)
 
-Set these for the **Production** environment:
+Set this for the **Production** environment:
 
 ```
-VITE_API_URL=https://your-backend-project.vercel.app
 VITE_GOOGLE_CLIENT_ID=your-google-client-id
 ```
 
-**Important:** Replace `https://your-backend-project.vercel.app` with your actual deployed backend URL.
-
-- **Local dev** (.env file): `VITE_API_URL=""` (empty) — the Vite proxy to localhost:8787 handles routing
-- **Production** (Vercel env vars): `VITE_API_URL="https://your-backend.vercel.app"` — the frontend calls the deployed backend directly
+- **Local dev** (.env file): leave `VITE_API_URL` blank to use the Vite proxy to localhost:8787.
+- **Production:** leave `VITE_API_URL` unset. The frontend project's `vercel.json` forwards `/api/*` to the backend through a same-origin rewrite.
 
 ### Why the blank page fix was needed
 
@@ -28,7 +25,7 @@ The original `.env` hardcoded `VITE_API_URL="http://localhost:8787"`, which does
 - That call fails because `http://localhost:8787` is unreachable from the browser
 - App breaks or goes blank
 
-**Fix:** Clear `.env` to use relative paths locally, and set the real backend URL in Vercel env vars for production.
+**Fix:** Clear `.env` to use relative paths locally. In production, leave `VITE_API_URL` unset and use the frontend's Vercel rewrite.
 
 ---
 
@@ -70,7 +67,7 @@ EMAIL_PASS=your-app-password
 - [ ] Set backend env vars in Vercel
 - [ ] Deploy backend and verify `/api/health` responds with `{"status":"ok"}`
 - [ ] Create **Frontend** Vercel project (root: `frontend/`)
-- [ ] Set `VITE_API_URL` to the deployed backend URL in frontend Vercel env vars
+- [ ] Leave `VITE_API_URL` unset in frontend Vercel env vars so requests use the same-origin rewrite
 - [ ] Deploy frontend
 - [ ] Test: open frontend URL and verify pages load without going blank
 - [ ] Test: try login/register flows to confirm API communication works
@@ -80,7 +77,7 @@ EMAIL_PASS=your-app-password
 ## Troubleshooting
 
 **Frontend goes blank after loading:**
-- Check Vercel frontend project env vars — `VITE_API_URL` must be set to the deployed backend URL
+- Check that the frontend's `vercel.json` rewrite is deployed and `VITE_API_URL` is unset
 - Check browser console for CORS errors
 - Verify backend is deployed and `/api/health` returns a 200 response
 

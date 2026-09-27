@@ -4,7 +4,7 @@
 // A blank base uses the Vite proxy locally and the Vercel rewrite in production.
 const currentHost = typeof window !== 'undefined' ? window.location.hostname : '';
 const isLocalDev = !currentHost || currentHost === 'localhost' || currentHost === '127.0.0.1';
-const configuredApiBase = import.meta.env.VITE_API_URL?.trim() || '';
+const configuredApiBase = isLocalDev ? import.meta.env.VITE_API_URL?.trim() || '' : '';
 
 function normalizeApiBase(value) {
   if (!value) return '';

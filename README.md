@@ -10,7 +10,8 @@ export into two independent, separately-deployable projects:
 Each folder is a self-contained project with its own `package.json`,
 `.env.example`, `vercel.json`, and `README.md` — deploy them as two
 separate Vercel projects (or host the backend elsewhere entirely) and
-point the frontend's `VITE_API_URL` at wherever the backend lives.
+use the frontend's same-origin rewrite on Vercel. Other hosts can proxy
+`/api/*` or use `VITE_API_URL` with the backend's CORS allowlist configured.
 
 No base44 account, SDK, or plugin is required anywhere in this codebase.
 

@@ -8,8 +8,7 @@ Vite + React app. Talks to the `backend/` project over HTTP through the
 ```bash
 npm install
 cp .env.example .env
-# leave VITE_API_URL blank for local dev (uses the Vite proxy below);
-# set it to your deployed backend's URL for production builds
+# leave VITE_API_URL blank to use the Vite proxy below
 ```
 
 ## Run locally
@@ -43,17 +42,17 @@ npm run preview   # serve the production build locally
 1. Push this `frontend/` folder as its own repo (or point Vercel's "Root
    Directory" setting at it in a monorepo).
 2. Import into Vercel — it auto-detects the Vite framework.
-3. Set `VITE_API_URL` in the project's environment variables to your
-   deployed backend's URL, e.g. `https://rentalls-api.vercel.app`.
-4. Deploy. `vercel.json` rewrites all routes to `index.html` so
-   React Router's client-side routing works on refresh/deep links.
+3. Leave `VITE_API_URL` unset. `vercel.json` forwards `/api/*` to the
+   backend using a same-origin rewrite, avoiding browser CORS restrictions.
+4. Deploy. `vercel.json` also rewrites app routes to `index.html` so React
+   Router's client-side routing works on refresh/deep links.
 
 ### Any static host
 
 `npm run build` produces a plain static `dist/` folder — deployable to
-Netlify, Cloudflare Pages, S3+CloudFront, GitHub Pages, etc. Just make
-sure your host rewrites unknown paths to `index.html` (SPA fallback) and
-that `VITE_API_URL` was set at build time.
+Netlify, Cloudflare Pages, S3+CloudFront, GitHub Pages, etc. Make sure your
+host rewrites app routes to `index.html` and proxies `/api/*` to the backend,
+or set `VITE_API_URL` at build time and configure backend CORS for that host.
 
 ## Structure
 
