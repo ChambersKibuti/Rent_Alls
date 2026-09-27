@@ -40,12 +40,16 @@ Set these for the **Production** environment:
 ```
 MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/rentalls
 JWT_SECRET=your-secret-key-at-least-32-chars
-APP_URL=https://your-backend-project.vercel.app
+APP_URL=https://your-frontend-project.vercel.app
 CORS_ORIGIN=https://your-frontend-project.vercel.app
 GOOGLE_CLIENT_ID=your-google-client-id
 GOOGLE_CLIENT_SECRET=your-google-client-secret
-EMAIL_USER=your-email@gmail.com
-EMAIL_PASS=your-app-password
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-gmail-app-password
+SMTP_FROM=RentAlls <your-email@gmail.com>
 ```
 
 ### Additional Setup
