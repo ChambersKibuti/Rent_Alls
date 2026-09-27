@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
+import { getToken } from "@/api/httpClient";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,6 +38,11 @@ export default function BuyerRegister() {
   const [checkingAuth, setCheckingAuth] = useState(true);
 
   useEffect(() => {
+    if (!getToken()) {
+      setCheckingAuth(false);
+      return;
+    }
+
     base44.auth.me().then((me) => {
       if (me) {
         setExistingUser(me);

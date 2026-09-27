@@ -1,12 +1,23 @@
 // @ts-nocheck
 // Thin fetch wrapper: adds the base URL, JSON headers, and the bearer token.
 // VITE_API_URL lets you point the frontend at a separately-hosted API. The
-// production fallback keeps deployments functional when Vercel env vars have
-// not been configured yet; local development still uses the Vite proxy.
+// A blank base uses the Vite proxy locally and the Vercel rewrite in production.
 const currentHost = typeof window !== 'undefined' ? window.location.hostname : '';
 const isLocalDev = !currentHost || currentHost === 'localhost' || currentHost === '127.0.0.1';
-const configuredApiBase = import.meta.env.VITE_API_URL || (isLocalDev ? '' : 'https://rent-allsbackend.vercel.app');
-const API_BASE = configuredApiBase.replace(/\/$/, '').replace(/\/api$/, '');
+const configuredApiBase = import.meta.env.VITE_API_URL?.trim() || '';
+
+function normalizeApiBase(value) {
+  if (!value) return '';
+  try {
+    const url = new URL(value);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return '';
+    return value.replace(/\/$/, '').replace(/\/api$/, '');
+  } catch {
+    return '';
+  }
+}
+
+const API_BASE = normalizeApiBase(configuredApiBase);
 
 const TOKEN_KEY = 'rentalls_access_token';
 
@@ -39,15 +50,11 @@ function describeNetworkFailure() {
   const currentHost = typeof window !== 'undefined' ? window.location.hostname : '';
   const isLocalDev = !currentHost || currentHost === 'localhost' || currentHost === '127.0.0.1';
 
-  if (!API_BASE && !isLocalDev) {
-    return 'The API backend is not configured for this deployment. Set VITE_API_URL to your backend URL in the app environment.';
-  }
-
   if (isLocalDev) {
     return 'The backend is unavailable. Start the API server and make sure it is running on localhost:8787 or the configured VITE_API_URL.';
   }
 
-  return 'Unable to reach the backend API. Check the server status and verify the configured API URL.';
+  return 'Unable to reach the backend API. Check the server status and verify the frontend API rewrite or configured VITE_API_URL.';
 }
 
 export async function request(path, { method = 'GET', body, headers = {}, isFormData = false } = {}) {
@@ -55,10 +62,6 @@ export async function request(path, { method = 'GET', body, headers = {}, isForm
   const finalHeaders = { ...headers };
   if (!isFormData) finalHeaders['Content-Type'] = 'application/json';
   if (token) finalHeaders['Authorization'] = `Bearer ${token}`;
-
-  if (!API_BASE && !isLocalDev) {
-    throw new ApiError(describeNetworkFailure(), 0, { cause: 'missing_api_url' });
-  }
 
   try {
     const res = await fetch(`${API_BASE}/api${path}`, {
