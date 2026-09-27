@@ -1,6 +1,6 @@
 // Drop-in replacement for the old @base44/sdk client.
 //
-// The rest of the app talks to `base44.auth.*`, `base44.entities.<Name>.*`
+// The rest of the app talks to `base44.auth.*`, `modules.<Name>.*`
 // and `base44.integrations.Core.*` exactly as before -- only what happens
 // underneath changed: it's now our own Express API on Vercel, backed by
 // MongoDB Atlas, instead of base44's hosted backend.

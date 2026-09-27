@@ -47,7 +47,7 @@ export default function SellerRegister() {
         }));
         // Check if they already have a seller account
         try {
-          const existing = await base44.entities.Seller.filter({ created_by_id: me.id }, "-created_date", 1);
+          const existing = await modules.Seller.filter({ created_by_id: me.id }, "-created_date", 1);
           if (existing.length > 0) {
             toast({ title: "Seller account found", description: "Redirecting to your dashboard..." });
             setTimeout(() => navigate("/seller-dashboard"), 1500);
@@ -61,7 +61,7 @@ export default function SellerRegister() {
     const plan = plans.find((p) => p.id === selectedPlan);
     const startDate = moment().format("YYYY-MM-DD");
     const endDate = moment().add(plan.duration, "months").format("YYYY-MM-DD");
-    const seller = await base44.entities.Seller.create({
+    const seller = await modules.Seller.create({
       business_name: form.business_name,
       description: form.description,
       phone: form.phone,

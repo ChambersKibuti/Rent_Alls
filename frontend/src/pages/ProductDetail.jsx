@@ -54,7 +54,7 @@ export default function ProductDetail() {
   }, []);
 
   useEffect(() => {
-    base44.entities.Product.get(id)
+    modules.Product.get(id)
       .then(async (p) => {
         setProduct(p);
       })
@@ -64,12 +64,12 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (!product || !revealed || !product.seller_id) return;
-    base44.entities.Seller.filter({ id: product.seller_id }, "-created_date", 1)
+    modules.Seller.filter({ id: product.seller_id }, "-created_date", 1)
       .then(async (sellers) => {
         if (!sellers.length) return;
         setSeller(sellers[0]);
         try {
-          setSellerRatings(await base44.entities.Rating.filter({ rated_id: product.seller_id, rated_role: "seller" }, "-created_date", 100));
+          setSellerRatings(await modules.Rating.filter({ rated_id: product.seller_id, rated_role: "seller" }, "-created_date", 100));
         } catch (error) {}
       })
       .catch(() => {});
@@ -101,7 +101,7 @@ export default function ProductDetail() {
     setPaying(true);
     try {
       const ref = "RA-RENT-" + Date.now().toString(36).toUpperCase();
-      const rentPayment = await base44.entities.Payment.create({
+      const rentPayment = await modules.Payment.create({
         product_id: product.id,
         product_title: product.title,
         amount: rentAmount,
@@ -122,7 +122,7 @@ export default function ProductDetail() {
       setRentPaymentId(rentPayment ? rentPayment.id : null);
 
       const newQty = Math.max(0, (product.quantity_available || 1) - 1);
-      await base44.entities.Product.update(product.id, {
+      await modules.Product.update(product.id, {
         quantity_available: newQty,
         status: newQty === 0 ? "Leased" : product.status,
       });

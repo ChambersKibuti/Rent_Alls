@@ -26,14 +26,14 @@ export default function ShowroomRoom() {
       try {
         const me = await base44.auth.me();
         setUser(me);
-        const room = await base44.entities.Showroom.get(id);
+        const room = await modules.Showroom.get(id);
         setShowroom(room);
 
-        const existing = await base44.entities.ShowroomMessage.filter({ showroom_id: id }, "-created_date", 200);
+        const existing = await modules.ShowroomMessage.filter({ showroom_id: id }, "-created_date", 200);
         setMessages(existing.reverse());
 
         if (room.status === "live" && room.host_id !== me.id) {
-          await base44.entities.ShowroomMessage.create({
+          await modules.ShowroomMessage.create({
             showroom_id: id,
             sender_id: me.id,
             sender_name: me.full_name || "User",
@@ -49,16 +49,16 @@ export default function ShowroomRoom() {
   // push incremental create/update/delete events, so each tick just
   // re-fetches the current message list and showroom state.
   useEffect(() => {
-    const unsub = base44.entities.ShowroomMessage.subscribe(async () => {
-      const latest = await base44.entities.ShowroomMessage.filter({ showroom_id: id }, "-created_date", 200);
+    const unsub = modules.ShowroomMessage.subscribe(async () => {
+      const latest = await modules.ShowroomMessage.filter({ showroom_id: id }, "-created_date", 200);
       setMessages(latest.reverse());
     });
     return unsub;
   }, [id]);
 
   useEffect(() => {
-    const unsub = base44.entities.Showroom.subscribe(async () => {
-      const latest = await base44.entities.Showroom.get(id);
+    const unsub = modules.Showroom.subscribe(async () => {
+      const latest = await modules.Showroom.get(id);
       if (latest) setShowroom(latest);
     });
     return unsub;
@@ -78,7 +78,7 @@ export default function ShowroomRoom() {
 
   const sendComment = async (text) => {
     if (!user) return;
-    await base44.entities.ShowroomMessage.create({
+    await modules.ShowroomMessage.create({
       showroom_id: id, sender_id: user.id, sender_name: user.full_name || "User",
       type: "comment", content: text,
     });
@@ -86,7 +86,7 @@ export default function ShowroomRoom() {
 
   const sendReaction = async (emoji) => {
     if (!user) return;
-    await base44.entities.ShowroomMessage.create({
+    await modules.ShowroomMessage.create({
       showroom_id: id, sender_id: user.id, sender_name: user.full_name || "User",
       type: "reaction", content: emoji,
     });
@@ -94,7 +94,7 @@ export default function ShowroomRoom() {
 
   const requestToSpeak = async () => {
     if (!user || mySpeakRequest) return;
-    await base44.entities.ShowroomMessage.create({
+    await modules.ShowroomMessage.create({
       showroom_id: id, sender_id: user.id, sender_name: user.full_name || "User",
       type: "speak_request", status: "pending",
     });
@@ -102,19 +102,19 @@ export default function ShowroomRoom() {
   };
 
   const approveSpeaker = async (msg) => {
-    await base44.entities.ShowroomMessage.update(msg.id, { status: "approved" });
-    await base44.entities.Showroom.update(id, {
+    await modules.ShowroomMessage.update(msg.id, { status: "approved" });
+    await modules.Showroom.update(id, {
       active_speaker_id: msg.sender_id,
       active_speaker_name: msg.sender_name,
     });
   };
 
   const rejectSpeaker = async (msg) => {
-    await base44.entities.ShowroomMessage.update(msg.id, { status: "rejected" });
+    await modules.ShowroomMessage.update(msg.id, { status: "rejected" });
   };
 
   const endShowroom = async () => {
-    await base44.entities.Showroom.update(id, { status: "ended", active_speaker_id: "", active_speaker_name: "" });
+    await modules.Showroom.update(id, { status: "ended", active_speaker_id: "", active_speaker_name: "" });
     setCameraOn(false);
     window.location.href = "/showroom";
   };
