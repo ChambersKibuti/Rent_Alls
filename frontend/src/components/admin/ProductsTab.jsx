@@ -92,7 +92,8 @@ export default function ProductsTab({ products, onReload }) {
       setForm(emptyProduct);
       await onReload();
     } catch (e) {
-      toast({ title: "Error saving product", variant: "destructive" });
+      const message = e?.message || "Unable to save this product right now.";
+      toast({ title: "Error saving product", description: message, variant: "destructive" });
     }
     setSaving(false);
   };

@@ -15,6 +15,20 @@ async function currentUser(req) {
   return User.findById(req.userId).lean();
 }
 
+export function isSellerListingAllowed(seller, config = {}) {
+  if (!seller) return false;
+  if (seller.fee_waiver) return true;
+
+  const subscriptionRequired = config?.seller_subscription_required !== false;
+  if (!subscriptionRequired) return true;
+
+  if (seller.status === 'Expired') return false;
+
+  const expiresAt = seller.subscription_end ? new Date(seller.subscription_end) : null;
+  const expired = !!expiresAt && expiresAt < new Date();
+  return !expired;
+}
+
 async function sellerCanManageProducts(user, res) {
   if (user?.role === 'admin') return null;
   const seller = await Seller.findOne({ created_by_id: String(user?._id) });
@@ -23,9 +37,7 @@ async function sellerCanManageProducts(user, res) {
     return null;
   }
   const config = await PlatformConfig.findOne().sort({ created_date: -1 }).lean();
-  const subscriptionRequired = config?.seller_subscription_required !== false;
-  const expired = seller.subscription_end && new Date(seller.subscription_end) < new Date();
-  if (subscriptionRequired && !seller.fee_waiver && (seller.status !== 'Active' || expired)) {
+  if (!isSellerListingAllowed(seller, config)) {
     res.status(403).json({ error: 'An approved seller subscription is required to manage listings' });
     return null;
   }

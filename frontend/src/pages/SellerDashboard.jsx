@@ -167,7 +167,8 @@ export default function SellerDashboard() {
       setForm(emptyProduct);
       await loadData();
     } catch (e) {
-      toast({ title: "Error saving product", variant: "destructive" });
+      const message = e?.message || "Unable to save this product right now.";
+      toast({ title: "Error saving product", description: message, variant: "destructive" });
     }
     setSaving(false);
   };
