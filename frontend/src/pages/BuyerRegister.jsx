@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { UserPlus, Mail, Lock, Phone, CreditCard, Loader2, Store } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
 import GoogleIcon from "@/components/GoogleIcon";
-import OtpStep from "@/components/OtpStep";
 import { toast } from "@/components/ui/use-toast";
 import { promptGoogleSignIn, isGoogleSignInConfigured } from "@/lib/googleAuth";
 import {
@@ -33,7 +32,6 @@ export default function BuyerRegister() {
   });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showOtp, setShowOtp] = useState(false);
   const [existingUser, setExistingUser] = useState(null);
   const [checkingAuth, setCheckingAuth] = useState(true);
 
@@ -123,7 +121,7 @@ export default function BuyerRegister() {
     setLoading(true);
     try {
       await base44.auth.register({ email: form.email, password: form.password });
-      setShowOtp(true);
+      await completeBuyerRegistration();
     } catch (err) {
       setError(err.message || "Registration failed");
     } finally {
@@ -131,7 +129,7 @@ export default function BuyerRegister() {
     }
   };
 
-  const handleVerified = async () => {
+  async function completeBuyerRegistration() {
     const fullNameValidation = validateFullNameFrontend(form.full_name);
     if (!fullNameValidation.valid) {
       setError(fullNameValidation.error);
@@ -190,14 +188,6 @@ export default function BuyerRegister() {
     }
   };
 
-
-  if (showOtp) {
-    return (
-      <AuthLayout icon={Mail} title="Verify your email" subtitle="Enter the 6-digit code sent to your email">
-        <OtpStep email={form.email} onVerified={handleVerified} onBack={() => setShowOtp(false)} />
-      </AuthLayout>
-    );
-  }
 
   if (checkingAuth) {
     return (

@@ -78,7 +78,9 @@ const auth = {
     return request('/auth/me', { method: 'PUT', body: data });
   },
   async register({ email, password }) {
-    return request('/auth/register', { method: 'POST', body: { email, password } });
+    const result = await request('/auth/register', { method: 'POST', body: { email, password } });
+    if (result?.access_token) setToken(result.access_token);
+    return result;
   },
   async verifyOtp({ email, otpCode }) {
     const result = await request('/auth/verify-otp', { method: 'POST', body: { email, otpCode } });

@@ -67,30 +67,26 @@ router.post('/register', authLimiter, async (req, res) => {
     }
 
     const password_hash = await hashPassword(password);
-    const otp_code = generateOtp();
-    const otp_expires = new Date(Date.now() + OTP_TTL_MS);
 
     let user = existing;
     if (user) {
-      Object.assign(user, { password_hash, otp_code, otp_expires });
+      Object.assign(user, {
+        password_hash,
+        is_verified: true,
+        otp_code: undefined,
+        otp_expires: undefined,
+      });
     } else {
       user = new User({
         email: validatedEmail,
         password_hash,
-        otp_code,
-        otp_expires,
+        is_verified: true,
         role: 'user',
       });
     }
     await user.save();
 
-    await sendEmail({
-      to: user.email,
-      subject: 'Your verification code',
-      body: `Your verification code is ${otp_code}. It expires in 15 minutes.`,
-    });
-
-    res.json({ message: 'Verification code sent', email: user.email });
+    res.json({ access_token: signToken(user) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Registration failed' });
@@ -166,8 +162,11 @@ router.post('/login', authLimiter, async (req, res) => {
     if (!user || !(await comparePassword(password, user.password_hash))) {
       return res.status(401).json({ error: 'Invalid email or password' });
     }
-    if (!user.is_verified) {
-      return res.status(403).json({ error: 'Please verify your email first', needsVerification: true });
+    if (!user.is_verified || user.otp_code) {
+      user.is_verified = true;
+      user.otp_code = undefined;
+      user.otp_expires = undefined;
+      await user.save();
     }
     const access_token = signToken(user);
     res.json({ access_token });

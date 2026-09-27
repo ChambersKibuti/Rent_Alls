@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PageLayout from "@/components/PageLayout";
-import OtpStep from "@/components/OtpStep";
 import { motion } from "framer-motion";
 import { Check, Loader2, Store, Calendar, Phone, Mail, MapPin, ArrowLeft, Home, CreditCard, Package, Lock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
@@ -30,7 +29,6 @@ export default function SellerRegister() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
-  const [showOtp, setShowOtp] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(async (me) => {
@@ -103,7 +101,7 @@ export default function SellerRegister() {
       setSubmitting(true);
       try {
         await base44.auth.register({ email: form.email, password: form.password });
-        setShowOtp(true);
+        await completeSellerRegistration();
       } catch (e) {
         toast({ title: "Registration failed", description: e.message || "Could not create account.", variant: "destructive" });
       } finally {
@@ -125,7 +123,7 @@ export default function SellerRegister() {
     }
   };
 
-  const handleOtpVerified = async () => {
+  async function completeSellerRegistration() {
     await base44.auth.updateMe({
       full_name: form.business_name,
       phone: form.phone,
@@ -166,23 +164,6 @@ export default function SellerRegister() {
           <p className="text-zinc-500 text-sm">Redirecting to your dashboard...</p>
         </motion.div>
       </div>);
-
-  }
-
-  if (showOtp) {
-    return (
-      <PageLayout showFooter={false}>
-        <div className="pt-28 pb-32 max-w-md mx-auto px-4 sm:px-6">
-          <div className="bg-white border border-zinc-300 rounded-2xl p-8">
-            <div className="w-12 h-12 bg-[#2E5BFF]/10 rounded-xl flex items-center justify-center mx-auto mb-4">
-              <Mail size={22} className="text-[#2E5BFF]" />
-            </div>
-            <h2 className="text-zinc-900 font-bold text-xl text-center mb-2">Verify your email</h2>
-            <p className="text-zinc-500 text-sm text-center mb-6">Enter the 6-digit code sent to your email</p>
-            <OtpStep email={form.email} onVerified={handleOtpVerified} onBack={() => setShowOtp(false)} />
-          </div>
-        </div>
-      </PageLayout>);
 
   }
 
