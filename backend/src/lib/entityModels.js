@@ -11,7 +11,7 @@ import Showroom from '../models/Showroom.js';
 import ShowroomMessage from '../models/ShowroomMessage.js';
 import User from '../models/User.js';
 
-// Public entity registry exposed at /api/modules/:entity/...
+// Public entity registry exposed at /api/entities/:entity/...
 // (User is intentionally excluded — it's managed through /api/auth/*)
 export const entityModels = {
   ChatMessage,

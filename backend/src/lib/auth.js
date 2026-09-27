@@ -1,25 +1,28 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
-const JWT_SECRET = process.env.JWT_SECRET;
-if (!JWT_SECRET) {
-  throw new Error(
-    'CRITICAL: JWT_SECRET environment variable is not set. ' +
-    'This must be a long random string. Generate one with: openssl rand -hex 32'
-  );
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error(
+      'CRITICAL: JWT_SECRET environment variable is not set. ' +
+      'This must be a long random string. Generate one with: openssl rand -hex 32'
+    );
+  }
+  return secret;
 }
 
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '30d';
 
 export function signToken(user) {
-  return jwt.sign({ sub: user._id.toString(), email: user.email }, JWT_SECRET, {
+  return jwt.sign({ sub: user._id.toString(), email: user.email }, getJwtSecret(), {
     expiresIn: JWT_EXPIRES_IN,
   });
 }
 
 export function verifyToken(token) {
   try {
-    return jwt.verify(token, JWT_SECRET);
+    return jwt.verify(token, getJwtSecret());
   } catch {
     return null;
   }

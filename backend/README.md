@@ -65,7 +65,7 @@ backend/
 │   ├── server.js        # Standalone entry point (npm run dev / start)
 │   ├── seed.js           # Creates first admin user + default PlatformConfig
 │   ├── models/            # Mongoose schemas (one per entity)
-│   ├── routes/             # auth, modules (generic CRUD), upload, email
+│   ├── routes/             # auth, entities (generic CRUD), upload, email
 │   └── lib/                 # db connection, JWT/auth helpers, access rules
 ├── package.json
 ├── vercel.json
@@ -84,10 +84,10 @@ backend/
 | `PUT  /api/auth/me`                  | Update own profile                      |
 | `POST /api/auth/reset-password-request` |                                       |
 | `POST /api/auth/reset-password`      |                                          |
-| `GET  /api/modules/:entity`         | List/filter (`?filter=`, `?sort=`, `?limit=`) |
-| `POST /api/modules/:entity`         | Create (auth required)                  |
-| `PUT  /api/modules/:entity/:id`     | Update (owner or admin)                 |
-| `DELETE /api/modules/:entity/:id`   | Delete (owner or admin)                 |
+| `GET  /api/entities/:entity`         | List/filter (`?filter=`, `?sort=`, `?limit=`) |
+| `POST /api/entities/:entity`         | Create (auth required)                  |
+| `PUT  /api/entities/:entity/:id`     | Update (owner or admin)                 |
+| `DELETE /api/entities/:entity/:id`   | Delete (owner or admin)                 |
 | `POST /api/upload`                   | multipart file upload -> `{ file_url }` |
 | `POST /api/email/send`               | Send an email (SMTP or console fallback)|
 

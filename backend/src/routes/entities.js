@@ -49,7 +49,7 @@ function normalizeFilter(filter) {
   return rest;
 }
 
-// A handful of modules (Product, Client, Payment, ...) store "seller_id"
+// A handful of entities (Product, Client, Payment, ...) store "seller_id"
 // pointing at the *Seller document's* id, not the auth user's id directly
 // (matching how the original app writes/reads these fields). To evaluate
 // ownership correctly we need the current user's own identity id *and* the
@@ -99,7 +99,7 @@ router.get('/:entity', async (req, res) => {
     }
     filter = normalizeFilter(filter);
 
-    // Non-admins on non-public-read modules only see rows they own
+    // Non-admins on non-public-read entities only see rows they own
     // (either directly, or via a Seller record they own).
     if (!rules.publicRead && user && user.role !== 'admin' && rules.ownerFields.length) {
       const identityIds = await getIdentityIds(user);
