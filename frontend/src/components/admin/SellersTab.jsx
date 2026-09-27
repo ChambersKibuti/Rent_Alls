@@ -1,7 +1,6 @@
 /* eslint-disable unused-imports/no-unused-vars */
 // @ts-nocheck
 import React, { useState, useEffect } from "react";
-import { base44 } from "@/api/base44Client";
 import { Loader2, Store, MapPin, RefreshCw, CheckCircle2, AlertTriangle, TrendingUp, Gift } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import moment from "moment";
