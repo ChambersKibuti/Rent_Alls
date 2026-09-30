@@ -15,7 +15,6 @@ export default function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const isAdmin = user?.role === "admin";
   const navLinks = [
     { label: "Home", path: "/" },
     { label: "Products", path: "/products" },
@@ -23,7 +22,6 @@ export default function Header() {
     { label: "Sell", path: "/seller-register" },
     { label: "Showroom", path: "/showroom" },
     ...(user ? [{ label: "Seller Dashboard", path: "/seller-dashboard" }] : []),
-    ...(isAdmin ? [{ label: "Admin", path: "/admin-backend" }] : []),
   ];
 
   const authButton = user ? (
