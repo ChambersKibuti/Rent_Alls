@@ -167,7 +167,11 @@ export default function SellerDashboard() {
       setForm(emptyProduct);
       await loadData();
     } catch (e) {
-      toast({ title: "Error saving product", variant: "destructive" });
+      toast({
+        title: "Error saving product",
+        description: e?.message || "Please try again.",
+        variant: "destructive",
+      });
     }
     setSaving(false);
   };
