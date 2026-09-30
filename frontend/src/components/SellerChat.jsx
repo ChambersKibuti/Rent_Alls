@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { base44 } from "@/api/base44Client";
-import { X, Send, MessageCircle, Store } from "lucide-react";
+import { X, Send, Store } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 export default function SellerChat({ productId, sellerId, sellerName, isOpen, onClose }) {

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight, Clock, Tag, MapPin } from "lucide-react";
+import { ArrowRight, Tag, MapPin } from "lucide-react";
 
 export default function ProductCard({ product }) {
   const [hovered, setHovered] = useState(false);

@@ -7,7 +7,6 @@ import ReactionBar from "@/components/showroom/ReactionBar";
 import CommentStream from "@/components/showroom/CommentStream";
 import SpeakRequestPanel from "@/components/showroom/SpeakRequestPanel";
 import FloatingReactions from "@/components/showroom/FloatingReactions";
-import { motion, AnimatePresence } from "framer-motion";
 import { Loader2, Hand, Mic, LogOut, Radio, CheckCircle2, XCircle, ArrowLeft, Clock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 

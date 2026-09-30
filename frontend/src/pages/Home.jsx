@@ -5,7 +5,7 @@ import { base44 } from "@/api/base44Client";
 import PageLayout from "@/components/PageLayout";
 import ProductCard from "@/components/ProductCard";
 import { motion } from "framer-motion";
-import { ArrowRight, ArrowLeft, Phone, MessageCircle, Hash, Shield, Clock, Wrench, Store, MapPin } from "lucide-react";
+import { ArrowRight, ArrowLeft, Phone, MessageCircle, Hash, Shield, Clock, Wrench, Store } from "lucide-react";
 import { CONTACT, PLAN_FEES } from "@/lib/constants";
 
 const { WHATSAPP_NUMBER, CALL_NUMBER, USSD_CODE } = CONTACT;

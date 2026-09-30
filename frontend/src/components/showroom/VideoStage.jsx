@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Video, VideoOff, Radio, Mic, Users, AlertCircle } from "lucide-react";
+import { Video, VideoOff, Radio, Mic, Users } from "lucide-react";
 
 export default function VideoStage({
   canUseCamera,

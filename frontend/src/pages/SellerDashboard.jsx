@@ -6,7 +6,7 @@ import CommandBar from "@/components/CommandBar";
 import LocationMap from "@/components/LocationMap";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Package, Users, Plus, X, Upload, Loader2, Trash2, Edit2, CheckCircle2,
+  Package, Users, Plus, X, Loader2, Trash2, Edit2, CheckCircle2,
   Image as ImageIcon, Video, MapPin, Store, UserX, UserCheck, Calendar, TrendingUp, Gift, AlertTriangle, Star, MessageSquare
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";

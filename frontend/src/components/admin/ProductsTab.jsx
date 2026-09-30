@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { base44 } from "@/api/base44Client";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, X, Upload, Loader2, Trash2, Edit2, CheckCircle2, Image as ImageIcon, Video, MapPin, Package } from "lucide-react";
+import { Plus, X, Loader2, Trash2, Edit2, CheckCircle2, Image as ImageIcon, Video, MapPin, Package } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const categories = ["Houses",

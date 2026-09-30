@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import PageLayout from "@/components/PageLayout";
 import { motion, AnimatePresence } from "framer-motion";
-import { Video, Plus, X, Loader2, Radio, Users, ArrowLeft } from "lucide-react";
+import { Video, Plus, X, Loader2, Radio, Users } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 export default function Showroom() {
