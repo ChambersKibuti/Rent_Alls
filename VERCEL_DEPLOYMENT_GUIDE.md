@@ -63,6 +63,21 @@ SMTP_FROM=RentAlls <your-email@gmail.com>
    - The backend uses the `CORS_ORIGIN` env var to allow requests from the frontend
    - Make sure it's set to your frontend's Vercel URL
 
+3. **Create or promote the admin account:**
+   Run this once from the `backend/` directory using the production MongoDB connection string:
+
+   ```bash
+   MONGODB_URI="your-production-mongodb-uri" \
+   JWT_SECRET="your-production-jwt-secret" \
+   ADMIN_EMAIL="the-email-you-will-use-to-log-in" \
+   ADMIN_PASSWORD="your-password" \
+   npm run seed
+   ```
+
+   The command creates the account if it does not exist, or promotes the matching
+   existing account to `admin`. Log out and back in after running it so the browser
+   receives a fresh session.
+
 ---
 
 ## Deployment Checklist

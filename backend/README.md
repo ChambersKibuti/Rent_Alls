@@ -39,7 +39,15 @@ Health check: `GET http://localhost:8787/api/health`.
    `.env.example`), especially `MONGODB_URI`, `JWT_SECRET`, and
    `CORS_ORIGIN` (your deployed frontend's URL).
 4. Deploy, then run `npm run seed` once (locally, pointed at the
-   production `MONGODB_URI`) to create your first admin.
+   production `MONGODB_URI`) to create or promote your admin account.
+   Use the same email you will use on the login page:
+
+   ```bash
+   ADMIN_EMAIL=you@example.com ADMIN_PASSWORD='your-password' npm run seed
+   ```
+
+   If you logged in before running this command, log out and log back in
+   afterward so the browser receives a fresh token.
 
 ### Option B — Render / Railway / a VM
 

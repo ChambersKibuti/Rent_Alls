@@ -6,6 +6,7 @@
 import 'dotenv/config';
 import { connectDB } from './lib/db.js';
 import { hashPassword } from './lib/auth.js';
+import { ensureAdminUser } from './lib/ensureAdmin.js';
 import User from './models/User.js';
 import PlatformConfig from './models/PlatformConfig.js';
 import Notice from './models/Notice.js';
@@ -16,20 +17,14 @@ async function seed() {
   const email = (process.env.ADMIN_EMAIL || 'admin@rentalls.com').toLowerCase();
   const password = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
 
-  let admin = await User.findOne({ email });
-  if (admin) {
-    console.log(`Admin user already exists: ${email}`);
-  } else {
-    admin = await User.create({
-      email,
-      password_hash: await hashPassword(password),
-      full_name: 'RentAlls Admin',
-      role: 'admin',
-      is_verified: true,
-    });
-    console.log(`Created admin user: ${email} / ${password}`);
-    console.log('IMPORTANT: log in and change this password.');
-  }
+  const admin = await ensureAdminUser({
+    userModel: User,
+    email,
+    password,
+    hashPassword,
+  });
+  console.log(`Admin account ready: ${admin.email}`);
+  console.log('If this account was newly created, log in and change the password.');
 
   const existingConfig = await PlatformConfig.findOne();
   if (!existingConfig) {
