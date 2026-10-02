@@ -3,18 +3,21 @@ import { Activity, Gift, Loader2, RefreshCw, Store, UserRound } from "lucide-rea
 import { base44 } from "@/api/base44Client";
 import { useToast } from "@/components/ui/use-toast";
 
+/** @typedef {{ id: string, business_name: string, status: string, subscription_plan?: string, subscription_end?: string, fee_waiver: boolean, product_count: number, rebate_amount?: number, rebate_status?: string }} PortfolioSeller */
+/** @typedef {{ id: string, email: string, full_name?: string, user_type: string, free_product_access: boolean, rebate_amount?: number, rebate_status?: string, seller: PortfolioSeller | null, activity: { completed_payments: number, pending_payments: number, rentals: number, product_accesses: number } }} PortfolioPerson */
+
 export default function ActivityTab() {
   const { toast } = useToast();
-  const [portfolio, setPortfolio] = useState([]);
+  const [portfolio, setPortfolio] = useState(/** @type {PortfolioPerson[]} */ ([]));
   const [loading, setLoading] = useState(true);
-  const [savingId, setSavingId] = useState(null);
-  const [rebates, setRebates] = useState({});
+  const [savingId, setSavingId] = useState(/** @type {string | null} */ (null));
+  const [rebates, setRebates] = useState(/** @type {Record<string, string | number>} */ ({}));
 
   const loadPortfolio = async () => {
     try {
       setPortfolio(await base44.admin.portfolio());
     } catch (error) {
-      toast({ title: "Could not load activity portfolio", description: error.message, variant: "destructive" });
+      toast({ title: "Could not load activity portfolio", description: error instanceof Error ? error.message : String(error), variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -24,6 +27,7 @@ export default function ActivityTab() {
     loadPortfolio();
   }, []);
 
+  /** @param {PortfolioPerson} person @param {{ free_subscription?: boolean, free_product_access?: boolean, rebate_amount?: number, mark_rebate_paid?: boolean }} changes */
   const updateBenefits = async (person, changes) => {
     const id = person.seller?.id || person.id;
     setSavingId(id);
@@ -33,7 +37,7 @@ export default function ActivityTab() {
       toast({ title: "Benefits updated" });
       await loadPortfolio();
     } catch (error) {
-      toast({ title: "Could not update benefits", description: error.message, variant: "destructive" });
+      toast({ title: "Could not update benefits", description: error instanceof Error ? error.message : String(error), variant: "destructive" });
     } finally {
       setSavingId(null);
     }

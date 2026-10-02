@@ -4,10 +4,22 @@ import { Loader2, CheckCircle2, Save, Settings } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const paymentMethods = ["Bank Transfer", "Mobile Money", "Card"];
+/** @typedef {{ id?: string, commission_payment_method: string, commission_account_name: string, commission_account_number: string, commission_bank_name: string, commission_rate: number, rebate_multiplier: number, seller_subscription_required: boolean, platform_name: string }} PlatformConfig */
+/** @type {PlatformConfig} */
+const emptyConfig = {
+  commission_payment_method: "Bank Transfer",
+  commission_account_name: "",
+  commission_account_number: "",
+  commission_bank_name: "",
+  commission_rate: 0.2,
+  rebate_multiplier: 100,
+  seller_subscription_required: true,
+  platform_name: "RentAlls",
+};
 
 export default function PlatformConfigTab() {
   const { toast } = useToast();
-  const [config, setConfig] = useState(null);
+  const [config, setConfig] = useState(/** @type {PlatformConfig} */ (emptyConfig));
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -21,16 +33,7 @@ export default function PlatformConfigTab() {
       if (configs.length > 0) {
         setConfig(configs[0]);
       } else {
-        setConfig({
-          commission_payment_method: "Bank Transfer",
-          commission_account_name: "",
-          commission_account_number: "",
-          commission_bank_name: "",
-          commission_rate: 0.2,
-          rebate_multiplier: 100,
-          seller_subscription_required: true,
-          platform_name: "RentAlls",
-        });
+        setConfig(emptyConfig);
       }
     } catch (e) {
       toast({ title: "Failed to load config", variant: "destructive" });

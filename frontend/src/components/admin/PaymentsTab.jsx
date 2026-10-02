@@ -4,12 +4,14 @@ import { ArrowRight, Check, CreditCard, Loader2, XCircle } from "lucide-react";
 import moment from "moment";
 import { useToast } from "@/components/ui/use-toast";
 
+/** @typedef {{ id: string, payment_purpose?: string, payment_type?: string, status: string, commission_amount?: number, rental_amount?: number, amount?: number, product_title?: string, reference_number?: string, payer_email?: string, created_date?: string, proof_message?: string, plan_id?: string, payment_method?: string }} PaymentRecord */
+
 export default function PaymentsTab() {
   const { toast } = useToast();
-  const [payments, setPayments] = useState([]);
+  const [payments, setPayments] = useState(/** @type {PaymentRecord[]} */ ([]));
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("All");
-  const [reviewingId, setReviewingId] = useState(null);
+  const [reviewingId, setReviewingId] = useState(/** @type {string | null} */ (null));
 
   useEffect(() => {
     loadPayments();
@@ -21,12 +23,13 @@ export default function PaymentsTab() {
     try {
       setPayments(await base44.entities.Payment.list("-created_date", 200));
     } catch (error) {
-      toast({ title: "Could not load payments", description: error.message, variant: "destructive" });
+      toast({ title: "Could not load payments", description: error instanceof Error ? error.message : String(error), variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
+  /** @param {PaymentRecord} payment @param {boolean} approve */
   const reviewPayment = async (payment, approve) => {
     setReviewingId(payment.id);
     try {
@@ -35,7 +38,7 @@ export default function PaymentsTab() {
       toast({ title: approve ? "Payment approved" : "Payment rejected" });
       await loadPayments();
     } catch (error) {
-      toast({ title: "Could not review payment", description: error.message, variant: "destructive" });
+      toast({ title: "Could not review payment", description: error instanceof Error ? error.message : String(error), variant: "destructive" });
     } finally {
       setReviewingId(null);
     }

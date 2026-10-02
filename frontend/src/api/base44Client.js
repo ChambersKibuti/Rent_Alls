@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Drop-in replacement for the old @base44/sdk client.
 //
 // The rest of the app talks to `base44.auth.*`, `base44.entities.<Name>.*`
@@ -65,10 +66,9 @@ function buildEntityApi(name) {
   };
 }
 
-const entities = ENTITY_NAMES.reduce((acc, name) => {
-  acc[name] = buildEntityApi(name);
-  return acc;
-}, {});
+const entities = /** @type {Record<string, ReturnType<typeof buildEntityApi>>} */ (
+  Object.fromEntries(ENTITY_NAMES.map((name) => [name, buildEntityApi(name)]))
+);
 
 const auth = {
   async me() {

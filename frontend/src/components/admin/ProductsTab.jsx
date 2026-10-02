@@ -9,21 +9,27 @@ const categories = ["Houses",
 "Vehicles",
 "Air BnB",
 "Other"];
-const emptyProduct = { title: "", description: "", price_per_day: "", category: "Houses", status: "Available", images: [], videos: [], specifications: "", deposit_amount: "", location_name: "", quantity_available: "1" };
+/** @typedef {{ title: string, description: string, price_per_day: number | string, category: string, status: string, images: string[], videos: string[], image_url: string, specifications: string, deposit_amount: number | string, location_name: string, quantity_available: number | string }} ProductForm */
+/** @typedef {{ id: string, title: string, description?: string, price_per_day: number, category: string, status: string, images?: string[], videos?: string[], image_url?: string, specifications?: string, deposit_amount?: number, location_name?: string, quantity_available?: number }} ProductRecord */
+/** @type {ProductForm} */
+const emptyProduct = { title: "", description: "", price_per_day: "", category: "Houses", status: "Available", images: [], videos: [], image_url: "", specifications: "", deposit_amount: "", location_name: "", quantity_available: "1" };
 
+/** @param {{ products: ProductRecord[], onReload: () => Promise<void> }} props */
 export default function ProductsTab({ products, onReload }) {
   const { toast } = useToast();
   const [showForm, setShowForm] = useState(false);
-  const [editProduct, setEditProduct] = useState(null);
-  const [form, setForm] = useState(emptyProduct);
+  const [editProduct, setEditProduct] = useState(/** @type {ProductRecord | null} */ (null));
+  const [form, setForm] = useState(/** @type {ProductForm} */ (emptyProduct));
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  /** @param {React.ChangeEvent<HTMLInputElement>} e */
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
     setUploading(true);
     try {
+      /** @type {string[]} */
       const urls = [];
       for (const file of files) {
         const { file_url } = await base44.integrations.Core.UploadFile({ file });
@@ -36,11 +42,13 @@ export default function ProductsTab({ products, onReload }) {
     setUploading(false);
   };
 
+  /** @param {React.ChangeEvent<HTMLInputElement>} e */
   const handleVideoUpload = async (e) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
     setUploading(true);
     try {
+      /** @type {string[]} */
       const urls = [];
       for (const file of files) {
         const { file_url } = await base44.integrations.Core.UploadFile({ file });
@@ -53,6 +61,7 @@ export default function ProductsTab({ products, onReload }) {
     setUploading(false);
   };
 
+  /** @param {number} idx */
   const removeImage = (idx) => {
     setForm((f) => {
       const newImages = (f.images || []).filter((_, i) => i !== idx);
@@ -60,6 +69,7 @@ export default function ProductsTab({ products, onReload }) {
     });
   };
 
+  /** @param {number} idx */
   const removeVideo = (idx) => {
     setForm((f) => ({ ...f, videos: (f.videos || []).filter((_, i) => i !== idx) }));
   };
@@ -97,6 +107,7 @@ export default function ProductsTab({ products, onReload }) {
     setSaving(false);
   };
 
+  /** @param {string} id */
   const deleteProduct = async (id) => {
     try {
       await base44.entities.Product.delete(id);
@@ -240,10 +251,10 @@ export default function ProductsTab({ products, onReload }) {
             <button onClick={() => {
               setEditProduct(p);
               setForm({
-                title: p.title, description: p.description || "", price_per_day: p.price_per_day, category: p.category, status: p.status,
+                title: p.title, description: p.description || "", price_per_day: String(p.price_per_day), category: p.category, status: p.status,
                 images: p.images || (p.image_url ? [p.image_url] : []), specifications: p.specifications || "",
                 videos: p.videos || [],
-                deposit_amount: p.deposit_amount || "", location_name: p.location_name || "", quantity_available: String(p.quantity_available || 1),
+                deposit_amount: p.deposit_amount === undefined ? "" : String(p.deposit_amount), location_name: p.location_name || "", quantity_available: String(p.quantity_available || 1), image_url: p.image_url || "",
               });
               setShowForm(true);
             }} className="text-zinc-400 hover:text-zinc-900 p-1"><Edit2 size={14} /></button>
