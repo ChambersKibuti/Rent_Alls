@@ -29,7 +29,7 @@ export default function AdminLayout({ activeTab, onTabChange, children }) {
 
             
             <div>
-              <span className="text-zinc-900 font-bold text-sm block">RentHub</span>
+              <span className="text-zinc-900 font-bold text-sm block">RentAlls</span>
               
             </div>
           </Link>
@@ -72,7 +72,7 @@ export default function AdminLayout({ activeTab, onTabChange, children }) {
           <div className="w-7 h-7 bg-[#2E5BFF] rounded-lg flex items-center justify-center">
             <span className="text-zinc-900 font-black text-xs">R</span>
           </div>
-          <span className="text-zinc-900 font-bold text-sm">RentHub Backend</span>
+          <span className="text-zinc-900 font-bold text-sm">RentAlls Backend</span>
         </Link>
         <Link to="/" className="text-zinc-500 hover:text-zinc-900">
           <Home size={18} />
